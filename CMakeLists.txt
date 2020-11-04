@@ -9,3 +9,5 @@ include_directories(OSMModule/Include)
 add_executable(temptative_architecture main.cpp)
 
 target_link_libraries(temptative_architecture OSMModule)
+
+install(TARGETS temptative_architecture RUNTIME DESTINATION bin)

@@ -59,19 +59,19 @@ class RequestAnalyzer
 {
 private:
 	/* member function to search nodes in JSON file.*/
-	node* searchNode(long long nodeID);
+	node* searchNode(vector<node>& nodes, long long nodeID);
 
 	/* search and store way tag content in JSON file. */
-	void store_ways_in_array(vector<vector<RoadInfo>>& road_info, int id, FILE* fp);
+	void store_ways_in_array(vector<vector<RoadInfo>>& road_info, vector<node>& nodes, int id, FILE* fp);
 
 	/* store nodes. */
-	void store_nodes_in_array(FILE* fp);
+	void store_nodes_in_array(vector<node>& nodes, FILE* fp);
 
 	/* read white space of JSON file.*/
 	bool readWhiteSpaces(FILE* fp);
 
 	/*store different tags */
-	void storeTagInArray(nodeTag* array, int* index, node curr_node);
+	void storeTagInArray(vector<nodeTag>& array, int* index, node curr_node);
 
 	/* read one word in JSON file. */
 	int readWord(FILE* fp, char word[50]);
@@ -80,22 +80,7 @@ private:
 	string returnName(FILE* fp);
 
 	/*node structure of JSON file*/
-	node nodes[MAX_NODES], firstNode;
-
-	/*way(road) structure */
-	way ways[MAX_WAYS], way_blgs[MAX_BUILDINGS];
-
-	/* different tag structures*/
-	nodeTag trafficLights[MAX_NODE_TAGS];
-	nodeTag roundabouts[MAX_NODE_TAGS];
-	nodeTag eatingPlaces[MAX_NODE_TAGS];
-	nodeTag hospitals[MAX_NODE_TAGS];
-	nodeTag parkings[MAX_NODE_TAGS];
-	nodeTag busStops[MAX_NODE_TAGS];
-	nodeTag oneways[MAX_NODE_TAGS];
-	nodeTag blgNames[MAX_BUILDINGS];
-	nodeTag streetNames[MAX_NODE_TAGS];
-	nodeTag trees[MAX_NODE_TAGS];
+	node firstNode;
 
 	/* number of nodes in Json file */
 	int nodeCount;

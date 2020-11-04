@@ -5,9 +5,9 @@
 #include <sstream>
 #include <vector>
 
-#define USE_DEFAULT_VALUES		0
-#define DEFAULT_CSV_FILEPATH	"C:\\_\\fvrr_vmwork\\swift-gnss.csv"
-#define DEFAULT_POINTCOUNT		1
+#define USE_DEFAULT_VALUES		1
+#define DEFAULT_CSV_FILEPATH	"C:\\_\\fvrr_vmwork\\fvrr_vmwork_cmake\\swift-gnss.csv"
+#define DEFAULT_POINTCOUNT		3
 
 const string data_path = "data.txt";
 
@@ -187,8 +187,6 @@ int main(int argc, char** argv)
 	}
 
 	cout << endl << "End" << endl;
-
-	cout << endl << "Press any key to terminate..." << endl;
 
 	return 0;
 }

@@ -55,7 +55,6 @@ using namespace std;
  */
 int RequestLauncher::Output(OSMModuleRequest request)
 {
-
 	Begin(request);
 
 	return subrequest_cnt;
@@ -295,7 +294,7 @@ int RequestLauncher::Get_CountryName(int id, LatLon pos)
 	string comma = ",";
 
 	string query;
-	query = "[out:json]; is_in(" + to_string(pos.latitude) + comma + to_string(pos.longitude) + "); area._[admin_level ='2'];out;";
+	query = "[out:csv(\"name:en\")];is_in(" + to_string(pos.latitude) + comma + to_string(pos.longitude) + ");area._[admin_level=\"2\"];out;";
 	/*Http request header*/
 	string queryStart = "GET /api/interpreter?data=";
 

@@ -27,8 +27,6 @@
 #include <iostream>
 #include <string.h>
 
-
-
  /**
  * Output Analyze Result of JSON file.
  *
@@ -40,13 +38,12 @@
 vector<vector<RoadInfo>> RequestAnalyzer::Output(int subreq_num)
 {
 	vector<vector<RoadInfo>> road_info;
+	vector<node> nodes(MAX_NODES);
 
 	road_info.resize(subreq_num);
 
 	for (int i = 0; i < subreq_num; i++)
 	{
-		road_info[i].resize(MAX_WAYS);
-
 		// anyalyze of result
 		string json_name = "database";
 		string num = to_string(i + 1);
@@ -56,10 +53,10 @@ vector<vector<RoadInfo>> RequestAnalyzer::Output(int subreq_num)
 		FILE* fp = fopen(json_name.c_str(), "r+");
 
 		nodeCount = 0;
+		store_nodes_in_array(nodes, fp);
 
-		store_nodes_in_array(fp);
 		if (nodeCount > 0)
-			store_ways_in_array(road_info, i, fp);
+			store_ways_in_array(road_info, nodes, i, fp);
 
 
 #ifdef _WIN32
@@ -80,11 +77,14 @@ vector<vector<RoadInfo>> RequestAnalyzer::Output(int subreq_num)
  *
  * @exceptsafe This function does not throw exceptions.
  */
-void RequestAnalyzer::store_ways_in_array(vector<vector<RoadInfo>>& road_info, int id, FILE* fp)
+void RequestAnalyzer::store_ways_in_array(vector<vector<RoadInfo>>& road_info, vector<node>& nodes, int id, FILE* fp)
 {
 	int wayIndex = 0;
 	int buildingIndex = 0;
 	char word[1000], ch = 'a';
+
+	vector<way> ways(MAX_WAYS);
+	road_info[id].resize(MAX_WAYS);
 
 	/* the fp continues from where store_nodes_in_array left off*/
 	while (!feof(fp))
@@ -127,7 +127,7 @@ void RequestAnalyzer::store_ways_in_array(vector<vector<RoadInfo>>& road_info, i
 				long long val;
 				sstr >> val;
 
-				ways[wayIndex].nodeList[ways[wayIndex].nodeCount] = searchNode(val);
+				ways[wayIndex].nodeList[ways[wayIndex].nodeCount] = searchNode(nodes, val);
 
 				ways[wayIndex].nodeCount++;
 
@@ -232,11 +232,19 @@ void RequestAnalyzer::store_ways_in_array(vector<vector<RoadInfo>>& road_info, i
  *
  * @exceptsafe This function does not throw exceptions.
  */
-void RequestAnalyzer::store_nodes_in_array(FILE* fp)
+void RequestAnalyzer::store_nodes_in_array(vector<node>& nodes, FILE* fp)
 {
 	char word[1000];
 	double lat, lon;
 	int treeRand;
+	
+	vector<nodeTag> trafficLights(MAX_NODE_TAGS);
+	vector<nodeTag> roundabouts(MAX_NODE_TAGS);
+	vector<nodeTag> eatingPlaces(MAX_NODE_TAGS);
+	vector<nodeTag> hospitals(MAX_NODE_TAGS);
+	vector<nodeTag> parkings(MAX_NODE_TAGS);
+	vector<nodeTag> busStops(MAX_NODE_TAGS);
+	vector<nodeTag> trees(MAX_NODE_TAGS);
 
 	fseek(fp, 0, SEEK_SET);
 
@@ -389,7 +397,7 @@ void RequestAnalyzer::store_nodes_in_array(FILE* fp)
  *
  * @exceptsafe This function does not throw exceptions.
  */
-node* RequestAnalyzer::searchNode(long long nodeID)
+node* RequestAnalyzer::searchNode(vector<node>& nodes, long long nodeID)
 {
 	for (int i = 0; i < nodeCount; i++)
 	{
@@ -414,6 +422,9 @@ node* RequestAnalyzer::searchNode(long long nodeID)
  */
 bool RequestAnalyzer::readWhiteSpaces(FILE* fp)
 {
+	if (feof(fp))
+		return false;
+
 	char ch;
 	bool word_break = true;
 
@@ -460,7 +471,7 @@ bool RequestAnalyzer::readWhiteSpaces(FILE* fp)
  *
  * @exceptsafe This function does not throw exceptions.
  */
-void RequestAnalyzer::storeTagInArray(nodeTag* array, int* index, node curr_node)
+void RequestAnalyzer::storeTagInArray(vector<nodeTag>& array, int* index, node curr_node)
 {
 	array[*index].name = "empty";
 	array[*index].x = curr_node.x;
