@@ -20,7 +20,7 @@
 #include "ResultGenerator.h"
 #include "PriorKnowledgeProvider.h"
 
- /*PriorKnowledgeProvider object*/
+/*PriorKnowledgeProvider object*/
 PriorKnowledgeProvider PriorKnowledge_Provider{};
 
 /**
@@ -31,46 +31,51 @@ PriorKnowledgeProvider PriorKnowledge_Provider{};
  *
  * @exceptsafe This function does not throw exceptions.
  */
-OSMModuleRequestResult* ResultGenerator::Process(int req_num)
+OSMModuleRequestResult ResultGenerator::Process(int req_num, const vector<vector<RoadInfo>>& road_info)
 {
-	OSMModuleRequestResult* res = new OSMModuleRequestResult;
+	OSMModuleRequestResult res;
 
-	res->country = "AU";
+	res.country = "AU";
 
-	int n = 0, total_way = 0;
+	size_t n = 0, total_way = 0;
 
 	for (int i = 0; i < req_num; i++)
 	{
-		total_way += rs->way_count[i];
+		total_way += road_info[i].size();
 	}
 
 	if (total_way == 0)
 	{
-		res->request_status = NOTFOUND;
-
+		res.request_status = NOTFOUND;
 	}
 	else
 	{
-		res->request_status = SUCCESS;
+		res.request_status = SUCCESS;
 	}
 
-	RoadInfo* temp = new RoadInfo[total_way];
+	vector<RoadInfo> temp(total_way);
 
 	for (int i = 0; i < req_num; i++)
 	{
-		for (int j = 0; j < rs->way_count[i]; j++)
+		for (int j = 0; j < road_info[i].size(); j++)
 		{
-
-			temp[n] = rs->roadinfo_buf[i][j];
+			temp[n] = road_info[i][j];
 			n++;
 		}
 	}
 
-
-	res->Road_infor = temp;
-
-	res->roadpart_buf_sz = total_way;
-
+	res.road_info = temp;
 
 	return PriorKnowledge_Provider.Output(res);
 }
+
+/*append result*/
+void ResultGenerator::Append() 
+{
+};
+
+/*output with JSON format*/
+OSMModuleRequestResult ResultGenerator::JsonParserOutput()
+{
+	return OSMModuleRequestResult();
+};

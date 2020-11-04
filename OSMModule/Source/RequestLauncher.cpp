@@ -35,14 +35,13 @@ using namespace std;
 
 #else
 
- #include <netdb.h>
+#include <netdb.h>
 #include <sys/socket.h>
- #include <arpa/inet.h>
+#include <arpa/inet.h>
 
 #endif // _WIN32
 
 #define RANGE					0.00003;
-
 #define OVERPASS_HOST			"www.overpass-api.de"
 #define OVERPASS_PORT			80
 
@@ -54,7 +53,6 @@ using namespace std;
  *
  * @exceptsafe This function does not throw exceptions.
  */
-
 int RequestLauncher::Output(OSMModuleRequest request)
 {
 
@@ -80,20 +78,18 @@ void RequestLauncher::Begin(OSMModuleRequest request)
 
 	around = RANGE;
 
-	cout << "*****" << request.poses_buf_sz << " subrequests are created.******" << endl;
+	cout << "*****" << request.poses_buf.size() << " subrequests are created.******" << endl;
 
-	res = new int[request.poses_buf_sz];
+	res.resize(request.poses_buf.size());
 
-	for (size_t i = 0; i < request.poses_buf_sz; ++i) 
+	for (size_t i = 0; i < request.poses_buf.size(); ++i) 
 	{
 		// double distance=0.1;
 
 		/*if (i%2 == 1)
 		{
-
 			distance = hypot(request.poses_buf[i].latlon.longitude - request.poses_buf[i - 1].latlon.longitude,
 				request.poses_buf[i].latlon.latitude - request.poses_buf[i - 1].latlon.latitude);
-
 		}*/
 
 		// if (distance > around )
@@ -119,15 +115,12 @@ void RequestLauncher::Begin(OSMModuleRequest request)
 			/*connecting to server and saving result */
 			res[i] = Get_Json(subrequest_cnt, query, "database");
 
-
 			if (res[i] < 0)
 				cout << "Connect failed." << endl;
 
 			Get_CountryName(subrequest_cnt, temp);
 		}
-
 	}
-
 }
 
 /**
@@ -142,8 +135,6 @@ void RequestLauncher::Begin(OSMModuleRequest request)
 string RequestLauncher::Create_Query(LatLon pos)
 {
 	string query;
-
-
 
 	double lat1, lon1, lat2, lon2;
 
@@ -201,7 +192,6 @@ string RequestLauncher::Create_Query(LatLon pos)
 int RequestLauncher::Get_Json(int id, string query, string fname)
 {
 	fstream fout;
-
 
 	string json_name = fname;
 	string num = to_string(id);
@@ -276,11 +266,7 @@ int RequestLauncher::Get_Json(int id, string query, string fname)
 			}
 			else
 			{
-
-
 				cout << &buf[0];
-
-
 				fout << &buf[0];
 			}
 		}
@@ -291,7 +277,6 @@ int RequestLauncher::Get_Json(int id, string query, string fname)
 	{
 		return -1;
 	}
-
 
 	// WinExec("notepad database.json", 1);
 	return 1;
@@ -305,7 +290,6 @@ int RequestLauncher::Get_Json(int id, string query, string fname)
  *
  * @exceptsafe This function does not throw exceptions.
  */
-
 int RequestLauncher::Get_CountryName(int id, LatLon pos)
 {
 	string comma = ",";
@@ -325,5 +309,4 @@ int RequestLauncher::Get_CountryName(int id, LatLon pos)
 	query = queryStart + query + queryEnd;
 	cout << query;
 	return Get_Json(id, query, "country");
-
 }

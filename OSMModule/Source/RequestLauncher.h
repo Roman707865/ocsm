@@ -46,7 +46,7 @@ private:
 public:
 	/*number of subrequest*/
 	int subrequest_cnt;
-	int* res;
+	vector<int> res;
 
 	/*result output of RequestLauncher submodule*/
 	int Output(OSMModuleRequest request);

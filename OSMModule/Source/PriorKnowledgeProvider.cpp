@@ -26,8 +26,7 @@
  *
  * @exceptsafe This function does not throw exceptions.
  */
-
-OSMModuleRequestResult* PriorKnowledgeProvider::Output(OSMModuleRequestResult* res)
+OSMModuleRequestResult& PriorKnowledgeProvider::Output(OSMModuleRequestResult& res)
 {
 	constexpr int kNumberOfLanes = 3;
 	Lane negativelane{ 0, -1, -1, 50, 3.75F, 0.0F, DrivingDirection::NEGATIVE };
@@ -39,21 +38,18 @@ OSMModuleRequestResult* PriorKnowledgeProvider::Output(OSMModuleRequestResult* r
 	positivelaneone.id = 1;
 	positivelanetwo.id = 2;
 
-	RoadPart* roadpart = new RoadPart[res->roadpart_buf_sz];
+    vector<RoadPart> roadpart(res.road_info.size());
 
-	for (int j = 0; j < res->roadpart_buf_sz; j++)
+	for (int j = 0; j < res.road_info.size(); j++)
 	{
-		roadpart[j].lanesection_buf_sz = 1;
-		roadpart[j].lanesection_buf = (LaneSection*)malloc(
-			roadpart->lanesection_buf_sz * sizeof(LaneSection));
-		roadpart[j].lanesection_buf[0].lane_buf_sz = kNumberOfLanes;
-		roadpart[j].lanesection_buf[0].lanes_buf =
-			(Lane*)malloc(kNumberOfLanes * sizeof(Lane));
+        roadpart[j].lanesection_buf.resize(1);
+
+        roadpart[j].lanesection_buf[0].lanes_buf.resize(kNumberOfLanes);
 		roadpart[j].lanesection_buf[0].lanes_buf[0] = negativelane;
 		roadpart[j].lanesection_buf[0].lanes_buf[1] = positivelaneone;
 		roadpart[j].lanesection_buf[0].lanes_buf[2] = positivelanetwo;
 	}
 
-	res->roadpart_buf = roadpart;
+	res.roadpart_buf = roadpart;
 	return res;
 }

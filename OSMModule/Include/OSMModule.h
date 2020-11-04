@@ -21,6 +21,7 @@
 #define OSMMODULE_H
 
 #include <string>
+#include <vector>
 
 using namespace std;
 
@@ -38,8 +39,7 @@ struct VehiclePos
 
 struct OSMModuleRequest
 {
-	VehiclePos* poses_buf;
-	size_t poses_buf_sz;
+	vector<VehiclePos> poses_buf;
 };
 
 enum RequestStatus
@@ -90,16 +90,13 @@ struct Lane
 
 struct LaneSection
 {
-	Lane* lanes_buf;
-	size_t lane_buf_sz;
-	LatLon* chord_coordinates_buf;
-	size_t chord_coordinates_buffer_buf_sz;
+	vector<Lane> lanes_buf;
+	vector<LatLon> chord_coordinates_buf;
 };
 
 struct RoadPart
 {
-	LaneSection* lanesection_buf;
-	size_t lanesection_buf_sz;
+	vector<LaneSection> lanesection_buf;
 };
 
 struct RoadInfo
@@ -116,13 +113,12 @@ struct RoadInfo
 struct OSMModuleRequestResult
 {
 	RequestStatus request_status;
-	RoadPart* roadpart_buf;
-	RoadInfo* Road_infor;
-	size_t roadpart_buf_sz;
+	vector<RoadPart> roadpart_buf;
+	vector<RoadInfo> road_info;
 	string country;
 };
 
  /* main method to communicate with the module */
-OSMModuleRequestResult* RequestDataForPath(OSMModuleRequest request);
+OSMModuleRequestResult RequestDataForPath(OSMModuleRequest request);
 
 #endif // OSMMODULE_H

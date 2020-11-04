@@ -27,7 +27,7 @@ class PriorKnowledgeProvider
 {
 public:
 	/* output member function*/
-	OSMModuleRequestResult* Output(OSMModuleRequestResult* res);
+	OSMModuleRequestResult& Output(OSMModuleRequestResult& res);
 };
 
 #endif // PRIORKNOWLEDGEPROVIDER_H

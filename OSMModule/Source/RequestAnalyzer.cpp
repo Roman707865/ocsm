@@ -28,30 +28,25 @@
 #include <string.h>
 
 
-#define MAX_NODES				100000
-#define MAX_WAYS				1000
-
-#define MAX_BUILDINGS			2000
-#define MAX_NODE_TAGS			2000
 
  /**
  * Output Analyze Result of JSON file.
  *
  * @param values Container number of subrequences.
- * @return AnalyzerResult structure of `values`, or NULL if `values` is empty.
+ * @return array of road description
  *
  * @exceptsafe This function does not throw exceptions.
  */
-
-AnalyzerResult* RequestAnalyzer::Output(int subreq_num)
+vector<vector<RoadInfo>> RequestAnalyzer::Output(int subreq_num)
 {
-	AnalyzerResult* temp = new AnalyzerResult;
+	vector<vector<RoadInfo>> road_info;
 
-	road_infor = new RoadInfo * [MAX_WAYS];
+	road_info.resize(subreq_num);
 
 	for (int i = 0; i < subreq_num; i++)
 	{
-		road_infor[i] = new RoadInfo[MAX_WAYS];
+		road_info[i].resize(MAX_WAYS);
+
 		// anyalyze of result
 		string json_name = "database";
 		string num = to_string(i + 1);
@@ -64,9 +59,8 @@ AnalyzerResult* RequestAnalyzer::Output(int subreq_num)
 
 		store_nodes_in_array(fp);
 		if (nodeCount > 0)
-			store_ways_in_array(i, fp);
+			store_ways_in_array(road_info, i, fp);
 
-		temp->way_count[i] = wayCount;
 
 #ifdef _WIN32
 		_fcloseall();
@@ -75,11 +69,7 @@ AnalyzerResult* RequestAnalyzer::Output(int subreq_num)
 #endif
 	}
 
-	temp->req_num = subreq_num;
-	temp->roadinfo_buf = road_infor;
-
-	return temp;
-
+	return road_info;
 }
 
 /**
@@ -90,15 +80,8 @@ AnalyzerResult* RequestAnalyzer::Output(int subreq_num)
  *
  * @exceptsafe This function does not throw exceptions.
  */
-
-void RequestAnalyzer::store_ways_in_array(int id, FILE* fp)
+void RequestAnalyzer::store_ways_in_array(vector<vector<RoadInfo>>& road_info, int id, FILE* fp)
 {
-
-	ways = new way[MAX_WAYS];
-	way_blgs = new way[MAX_BUILDINGS];
-	blgNames = new nodeTag[MAX_BUILDINGS];
-	streetNames = new nodeTag[MAX_NODE_TAGS];
-
 	int wayIndex = 0;
 	int buildingIndex = 0;
 	char word[1000], ch = 'a';
@@ -179,41 +162,42 @@ void RequestAnalyzer::store_ways_in_array(int id, FILE* fp)
 
 					if (!strcmp(word, "}") || !strcmp(word, "0"))
 						break;
+
 					if (!strcmp(word, "\"highway\":"))
 					{
 						readWord(fp, word);
-						road_infor[id][wayIndex].highway = word;
+						road_info[id][wayIndex].highway = word;
 					}
 					if (!strcmp(word, "\"lanes\":"))
 					{
 						readWord(fp, word);
-						road_infor[id][wayIndex].lanes = word;
+						road_info[id][wayIndex].lanes = word;
 					}
 
 					if (!strcmp(word, "\"lit\":"))
 					{
 						readWord(fp, word);
-						road_infor[id][wayIndex].lit = word;
+						road_info[id][wayIndex].lit = word;
 					}
 					if (!strcmp(word, "\"maxspeed\":"))
 					{
 						readWord(fp, word);
-						road_infor[id][wayIndex].maxspeed = word;
+						road_info[id][wayIndex].maxspeed = word;
 					}
 					if (!strcmp(word, "\"name\":"))
 					{
 						readWord(fp, word);
-						road_infor[id][wayIndex].name = word;
+						road_info[id][wayIndex].name = word;
 					}
 					if (!strcmp(word, "\"smoothness\":"))
 					{
 						readWord(fp, word);
-						road_infor[id][wayIndex].smoothness = word;
+						road_info[id][wayIndex].smoothness = word;
 					}
 					if (!strcmp(word, "\"surface\":"))
 					{
 						readWord(fp, word);
-						road_infor[id][wayIndex].surface = word;
+						road_info[id][wayIndex].surface = word;
 					}
 
 				}
@@ -221,6 +205,7 @@ void RequestAnalyzer::store_ways_in_array(int id, FILE* fp)
 
 			/* one more way gone into ways array*/
 			wayIndex++;
+			
 			if (wayIndex == MAX_WAYS)
 			{
 				cout << "\nway count greater than max way limit, try somewhere less congested";
@@ -229,12 +214,13 @@ void RequestAnalyzer::store_ways_in_array(int id, FILE* fp)
 				cout << "\n\nNo of ways in this data : " << wayCount << endl;
 				return;
 			}
-
 		}
 	}
+
 	wayCount = wayIndex;
 	blgCount = buildingIndex;
 
+	road_info[id].resize(wayCount);
 	// cout << "\n\nNo of ways in this data : " << wayCount<<endl;
 }
 
@@ -246,26 +232,11 @@ void RequestAnalyzer::store_ways_in_array(int id, FILE* fp)
  *
  * @exceptsafe This function does not throw exceptions.
  */
-
 void RequestAnalyzer::store_nodes_in_array(FILE* fp)
 {
-
-	nodes = new node[MAX_NODES];
-	trafficLights = new nodeTag[MAX_NODE_TAGS];
-	roundabouts = new nodeTag[MAX_NODE_TAGS];
-	eatingPlaces = new nodeTag[MAX_NODE_TAGS];
-	hospitals = new nodeTag[MAX_NODE_TAGS];
-	parkings = new nodeTag[MAX_NODE_TAGS];
-	busStops = new nodeTag[MAX_NODE_TAGS];
-	oneways = new nodeTag[MAX_NODE_TAGS];
-	trees = new nodeTag[MAX_NODE_TAGS];
-
-	// map.hotels = new hotel[MAX_HOTELS];
-
 	char word[1000];
 	double lat, lon;
 	int treeRand;
-
 
 	fseek(fp, 0, SEEK_SET);
 
@@ -286,14 +257,11 @@ void RequestAnalyzer::store_nodes_in_array(FILE* fp)
 
 		if (!strcmp(word, "\"node\","))
 		{
-
 			// a random no. to see if I draw a tree
 			treeRand = rand() % 1000;
 
-
 			// read "id":
 			readWord(fp, word);
-
 
 			// read the acutal node id value
 			readWord(fp, word);
@@ -407,7 +375,6 @@ void RequestAnalyzer::store_nodes_in_array(FILE* fp)
 				}
 			}
 
-
 			nodeCount++;
 		}
 	}
@@ -436,6 +403,7 @@ node* RequestAnalyzer::searchNode(long long nodeID)
 	exit(0);
 	return 0;
 }
+
 /**
  * Read white spaces(empty part) of JSON file .
  *
@@ -446,7 +414,6 @@ node* RequestAnalyzer::searchNode(long long nodeID)
  */
 bool RequestAnalyzer::readWhiteSpaces(FILE* fp)
 {
-
 	char ch;
 	bool word_break = true;
 
@@ -484,6 +451,7 @@ bool RequestAnalyzer::readWhiteSpaces(FILE* fp)
 	}
 	return word_break;
 }
+
 /**
  * Store tag in array .
  *
@@ -500,6 +468,7 @@ void RequestAnalyzer::storeTagInArray(nodeTag* array, int* index, node curr_node
 
 	*index = *index + 1;
 }
+
 /**
  * Read one word in JSON file .
  *
@@ -553,6 +522,7 @@ int RequestAnalyzer::readWord(FILE* fp, char word[50])
 		fseek(fp, -1, SEEK_CUR);
 	return res;
 }
+
 /**
  * Read amenity'name' tag in JSON file .
  *

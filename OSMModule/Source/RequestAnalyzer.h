@@ -21,10 +21,15 @@
 #define REQUESTANALYZER_H
 
 #include "OSMModule.h"
-#include "OSMInternal.h"
 #include <stdio.h>
+#include <vector>
 
+#define MAX_NODES				100000
+#define MAX_WAYS				1000
 #define MAX_NODES_IN_WAY		2000
+
+#define MAX_BUILDINGS			2000
+#define MAX_NODE_TAGS			2000
 
 // node tag structure
 struct nodeTag
@@ -57,7 +62,7 @@ private:
 	node* searchNode(long long nodeID);
 
 	/* search and store way tag content in JSON file. */
-	void store_ways_in_array(int id, FILE* fp);
+	void store_ways_in_array(vector<vector<RoadInfo>>& road_info, int id, FILE* fp);
 
 	/* store nodes. */
 	void store_nodes_in_array(FILE* fp);
@@ -75,13 +80,22 @@ private:
 	string returnName(FILE* fp);
 
 	/*node structure of JSON file*/
-	node* nodes, firstNode;
+	node nodes[MAX_NODES], firstNode;
 
 	/*way(road) structure */
-	way* ways, * way_blgs;
+	way ways[MAX_WAYS], way_blgs[MAX_BUILDINGS];
 
 	/* different tag structures*/
-	nodeTag* trafficLights, * roundabouts, * eatingPlaces, * hospitals, * parkings, * busStops, * oneways, * blgNames, * streetNames, * trees;
+	nodeTag trafficLights[MAX_NODE_TAGS];
+	nodeTag roundabouts[MAX_NODE_TAGS];
+	nodeTag eatingPlaces[MAX_NODE_TAGS];
+	nodeTag hospitals[MAX_NODE_TAGS];
+	nodeTag parkings[MAX_NODE_TAGS];
+	nodeTag busStops[MAX_NODE_TAGS];
+	nodeTag oneways[MAX_NODE_TAGS];
+	nodeTag blgNames[MAX_BUILDINGS];
+	nodeTag streetNames[MAX_NODE_TAGS];
+	nodeTag trees[MAX_NODE_TAGS];
 
 	/* number of nodes in Json file */
 	int nodeCount;
@@ -98,13 +112,8 @@ private:
 	int trafficLightCount, roundaboutCount, eatingPlaceCount, hospitalCount, parkingCount, busStopCount, onewayCount, streetCount, treeCount;
 
 public:
-
-	/* 2 dimension array of road property*/
-	RoadInfo** road_infor;
-
 	/*member function for output*/
-	AnalyzerResult* Output(int subreq_num);
-
+	vector<vector<RoadInfo>> Output(int subreq_num);
 };
 
 #endif // REQUESTANALYZER_H

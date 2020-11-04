@@ -20,22 +20,18 @@
 #define RESULTGENERATOR_H
 
 #include "OSMModule.h"
-#include "OSMInternal.h"
 
 class ResultGenerator
 {
 public:
-	/*RequestAnalyzer ouput structure*/
-	AnalyzerResult* rs;
-
 	/* main process member function of this module*/
-	OSMModuleRequestResult* Process(int req_num);
+	OSMModuleRequestResult Process(int req_num, const vector<vector<RoadInfo>>& road_info);
 
 	/*append result*/
-	void Append() {};
+	void Append();
 
 	/*output with JSON format*/
-	OSMModuleRequestResult* JsonParserOutput() {};
+	OSMModuleRequestResult JsonParserOutput();
 
 };
 

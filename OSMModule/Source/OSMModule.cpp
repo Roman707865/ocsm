@@ -22,10 +22,6 @@
 #include "RequestAnalyzer.h"
 #include "ResultGenerator.h"
 
-RequestLauncher Request_Launcher{};
-RequestAnalyzer Request_Analyzer{};
-ResultGenerator Result_Generator{};
-
 /**
  * Send request Overpass api query to server.
  *
@@ -34,17 +30,13 @@ ResultGenerator Result_Generator{};
  *
  * @exceptsafe This function does not throw exceptions.
  */
-OSMModuleRequestResult* RequestDataForPath(OSMModuleRequest request)
+OSMModuleRequestResult RequestDataForPath(OSMModuleRequest request)
 {
-	OSMModuleRequestResult* result;
+	int req_num = RequestLauncher().Output(request);
 
-	int req_num = Request_Launcher.Output(request);
+    vector<vector<RoadInfo>> road_info = RequestAnalyzer().Output(req_num);
 
-	Result_Generator.rs = Request_Analyzer.Output(req_num);
-
-	result = Result_Generator.Process(req_num);
-
-	return result;
+	return ResultGenerator().Process(req_num, road_info);
 }
 
 
