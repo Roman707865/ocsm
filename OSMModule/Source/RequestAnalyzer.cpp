@@ -26,6 +26,7 @@
 #include <sstream>
 #include <iostream>
 #include <string.h>
+#include <math.h>
 
  /**
  * Output Analyze Result of JSON file.
