@@ -35,8 +35,7 @@ OSMModuleRequestResult ResultGenerator::Process(int req_num, const vector<vector
 {
 	OSMModuleRequestResult res;
 
-	res.country = "AU";
-
+	
 	size_t n = 0, total_way = 0;
 
 	for (int i = 0; i < req_num; i++)
@@ -72,6 +71,7 @@ OSMModuleRequestResult ResultGenerator::Process(int req_num, const vector<vector
 /*append result*/
 void ResultGenerator::Append() 
 {
+
 };
 
 /*output with JSON format*/

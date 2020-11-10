@@ -6,10 +6,12 @@
 #include <vector>
 
 #define USE_DEFAULT_VALUES		1
-#define DEFAULT_CSV_FILEPATH	"C:\\_\\fvrr_vmwork\\fvrr_vmwork_cmake\\swift-gnss.csv"
-#define DEFAULT_POINTCOUNT		3
+#define DEFAULT_CSV_FILEPATH	"C:\\Users\\Star\\Documents\\GitHub\\fvrr_vmwork_cmake\\swift-gnss.csv"
+#define DEFAULT_POINTCOUNT		1
 
 const string data_path = "data.txt";
+
+
 
 /**
  * Read csv file content and save to text file .
@@ -21,6 +23,9 @@ const string data_path = "data.txt";
  */
 void read_csv(const string &csv_path)
 {
+
+
+
 	cout << "reading data from csv file..." << endl;
 
 	/* number of input GPS measure point */
@@ -130,12 +135,14 @@ int main(int argc, char** argv)
 	fin.open(data_path, ios::in);
 
 	vector<VehiclePos> posebuffer(point_count);
-
+	//42.476472, -71.220167
 	for (int i = 0; i < point_count; i++) // read data from text file
 	{
 		fin >> posebuffer[i].latlon.latitude;
 		fin >> posebuffer[i].latlon.longitude;
 
+		posebuffer[i].latlon.latitude= 42.476472;
+		posebuffer[i].latlon.longitude= -71.220167;
 		posebuffer[i].heading = 90;
 	}
 
@@ -151,22 +158,25 @@ int main(int argc, char** argv)
 
 	if (result.request_status == RequestStatus::SUCCESS)
 	{
+		cout << "Success." << endl;
+
 		cout << "The result contain " << result.road_info.size() << " RoadPart" << endl;
 		// cout<<"The first road part has "<<result.roadpart_buf[0].lanesection_buf.size() <<" Lane Sections"<<endl;
 		// cout<<"The first lane section has "<<result.roadpart_buf[0].lanesection_buf[0].lanes_buf.size()<<" Lanes"<<endl;
-		cout << "country: " << result.country << endl;
+	
 
 		for (size_t i = 0; i < result.road_info.size(); ++i)
 		{
 			cout << "--------------Characteristics of Road" << i << "--------------------" << endl;
-			cout << "name : " << result.road_info[i].name << endl;
-			cout << "highway : " << result.road_info[i].highway << endl;
-			cout << "lanes : " << result.road_info[i].lanes << endl;
-			cout << "lit : " << result.road_info[i].lit << endl;
-			cout << "maxspeed : " << result.road_info[i].maxspeed << endl;
-			cout << "smoothness : " << result.road_info[i].smoothness << endl;
-			cout << "surface : " << result.road_info[i].surface << endl;
-
+			cout<<"country : "<< result.road_info[i].country  << endl;
+			wcout << L"name : " << result.road_info[i].name << endl;
+			wcout << L"highway : " << result.road_info[i].highway << endl;
+			wcout << L"lanes : " << result.road_info[i].lanes << endl;
+			wcout << L"lit : " << result.road_info[i].lit << endl;
+			wcout << L"maxspeed : " << result.road_info[i].maxspeed << endl;
+			wcout << L"smoothness : " << result.road_info[i].smoothness << endl;
+			wcout << L"surface : " << result.road_info[i].surface << endl;
+			wcout << L"width : " << result.road_info[i].width << endl;
 			for (size_t j = 0; j < result.roadpart_buf[i].lanesection_buf[0].lanes_buf.size(); j++)
 			{
 				cout << " -----Lane " << j << " property" << endl;
@@ -188,5 +198,8 @@ int main(int argc, char** argv)
 
 	cout << endl << "End" << endl;
 
+	while (1)
+	{
+	}
 	return 0;
 }

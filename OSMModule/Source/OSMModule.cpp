@@ -32,9 +32,21 @@
  */
 OSMModuleRequestResult RequestDataForPath(OSMModuleRequest request)
 {
-	int req_num = RequestLauncher().Output(request);
 
-    vector<vector<RoadInfo>> road_info = RequestAnalyzer().Output(req_num);
+	
+	Launcher_Out _out;
+	Analyzer_In _in;
+
+	_out = RequestLauncher().Output(request);
+
+	_in.country = _out.country;
+
+	_in.JsonArray = _out.JsonArray;
+
+
+	int req_num = _out.JsonArray.size();
+
+    vector<vector<RoadInfo>> road_info = RequestAnalyzer().Output(_in);
 
 	return ResultGenerator().Process(req_num, road_info);
 }

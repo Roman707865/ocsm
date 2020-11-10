@@ -101,14 +101,17 @@ struct RoadPart
 
 struct RoadInfo
 {
-	string highway;
-	string lanes;
-	string lit;
-	string maxspeed;
-	string name;
-	string smoothness;
-	string surface;
+	string country;
+	wstring highway;
+	wstring lanes;
+	wstring lit;
+	wstring maxspeed;
+	wstring name;
+	wstring smoothness;
+	wstring surface;
+	wstring width;
 };
+
 
 struct OSMModuleRequestResult
 {
@@ -120,5 +123,6 @@ struct OSMModuleRequestResult
 
  /* main method to communicate with the module */
 OSMModuleRequestResult RequestDataForPath(OSMModuleRequest request);
+
 
 #endif // OSMMODULE_H

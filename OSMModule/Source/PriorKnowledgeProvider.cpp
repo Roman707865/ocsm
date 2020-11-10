@@ -28,6 +28,8 @@
  */
 OSMModuleRequestResult& PriorKnowledgeProvider::Output(OSMModuleRequestResult& res)
 {
+
+
 	constexpr int kNumberOfLanes = 3;
 	Lane negativelane{ 0, -1, -1, 50, 3.75F, 0.0F, DrivingDirection::NEGATIVE };
 	Lane positivelaneone{ 0, -1, -1, 50, 3.75F, 0.0F, DrivingDirection::NEGATIVE };
@@ -44,7 +46,10 @@ OSMModuleRequestResult& PriorKnowledgeProvider::Output(OSMModuleRequestResult& r
 	{
         roadpart[j].lanesection_buf.resize(1);
 
-        roadpart[j].lanesection_buf[0].lanes_buf.resize(kNumberOfLanes);
+	    int n = _wtoi(res.road_info[j].lanes.c_str());
+
+        roadpart[j].lanesection_buf[0].lanes_buf.resize(n);
+
 		roadpart[j].lanesection_buf[0].lanes_buf[0] = negativelane;
 		roadpart[j].lanesection_buf[0].lanes_buf[1] = positivelaneone;
 		roadpart[j].lanesection_buf[0].lanes_buf[2] = positivelanetwo;

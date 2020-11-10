@@ -1,0 +1,96 @@
+
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.56.8 7d656e78",
+  "osm3s": {
+    "timestamp_osm_base": "2020-11-09T05:07:02Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "node",
+  "id": 64473089,
+  "lat": 42.4770384,
+  "lon": -71.2183457
+},
+{
+  "type": "node",
+  "id": 64475563,
+  "lat": 42.4766849,
+  "lon": -71.2195304
+},
+{
+  "type": "node",
+  "id": 64487648,
+  "lat": 42.4759690,
+  "lon": -71.2219185
+},
+{
+  "type": "node",
+  "id": 64490814,
+  "lat": 42.4758238,
+  "lon": -71.2224147
+},
+{
+  "type": "node",
+  "id": 64503694,
+  "lat": 42.4778693,
+  "lon": -71.2155554
+},
+{
+  "type": "node",
+  "id": 64537417,
+  "lat": 42.4765521,
+  "lon": -71.2199803
+},
+{
+  "type": "node",
+  "id": 64654832,
+  "lat": 42.4755556,
+  "lon": -71.2234035
+},
+{
+  "type": "node",
+  "id": 1793607842,
+  "lat": 42.4756963,
+  "lon": -71.2228705
+},
+{
+  "type": "way",
+  "id": 8872681,
+  "nodes": [
+    64503694,
+    64473089,
+    64475563,
+    64537417,
+    64487648,
+    64490814,
+    1793607842,
+    64654832
+  ],
+  "tags": {
+    "attribution": "Office of Geographic and Environmental Information (MassGIS)",
+    "bicycle": "no",
+    "condition": "good",
+    "foot": "no",
+    "hgv": "designated",
+    "highway": "motorway",
+    "horse": "no",
+    "lanes": "4",
+    "lit": "yes",
+    "massgis:way_id": "154642",
+    "maxspeed": "55 mph",
+    "name": "Yankee Division Highway",
+    "oneway": "yes",
+    "ref": "I 95;MA 128",
+    "sidewalk": "no",
+    "source": "massgis_import_v0.1_20071009102020",
+    "surface": "asphalt",
+    "width": "91.5"
+  }
+}
+
+  ]
+}
+

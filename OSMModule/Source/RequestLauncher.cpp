@@ -23,8 +23,9 @@
 
 #include "RequestLauncher.h"
 #include <iostream>
-#include <fstream>
 #include <vector>
+#include <sstream>
+
 
 #ifdef _WIN32
 
@@ -45,6 +46,10 @@ using namespace std;
 #define OVERPASS_HOST			"www.overpass-api.de"
 #define OVERPASS_PORT			80
 
+const int buf_size = 5 * 1024;// 1M
+
+
+
  /**
  * Output connect result of RequestLauncher submodule.
  *
@@ -53,48 +58,31 @@ using namespace std;
  *
  * @exceptsafe This function does not throw exceptions.
  */
-int RequestLauncher::Output(OSMModuleRequest request)
+Launcher_Out RequestLauncher::Output(OSMModuleRequest request)
 {
-	Begin(request);
 
-	return subrequest_cnt;
-}
+	Launcher_Out out;
 
-/**
- * Main process function of RequestLauncher submodule.
- *
- * @param values contain user's OSMModuleRequest.
- * @return none.
- *
- * @exceptsafe This function does not throw exceptions.
- */
-
-void RequestLauncher::Begin(OSMModuleRequest request)
-{
 	double lat = 0, lon = 0;
 
-	subrequest_cnt = 0;
+	int subrequest_cnt=0;
+
 
 	around = RANGE;
 
 	cout << "*****" << request.poses_buf.size() << " subrequests are created.******" << endl;
 
-	res.resize(request.poses_buf.size());
+	subrequest_cnt = request.poses_buf.size();
+
+	res.resize(subrequest_cnt);
+	out.JsonArray.resize(subrequest_cnt);
+
+	country.resize(subrequest_cnt);
+	out.country.resize(subrequest_cnt);
 
 	for (size_t i = 0; i < request.poses_buf.size(); ++i) 
 	{
-		// double distance=0.1;
-
-		/*if (i%2 == 1)
-		{
-			distance = hypot(request.poses_buf[i].latlon.longitude - request.poses_buf[i - 1].latlon.longitude,
-				request.poses_buf[i].latlon.latitude - request.poses_buf[i - 1].latlon.latitude);
-		}*/
-
-		// if (distance > around )
-		{
-			subrequest_cnt++;
-
+		
 			cout << "Proceeding vehicle pos " << subrequest_cnt << " long "
 				<< request.poses_buf[i].latlon.longitude << " lat "
 				<< request.poses_buf[i].latlon.latitude << endl;
@@ -102,24 +90,34 @@ void RequestLauncher::Begin(OSMModuleRequest request)
 			lat = request.poses_buf[i].latlon.latitude;
 			lon = request.poses_buf[i].latlon.longitude;
 
-			// lat = 48.819958;
-			// lon = 2.325855;
+	
 			LatLon temp{ lon, lat };
 
 			/*make request query*/
 			string query = Create_Query(temp);
 
-			res[i] = 0;
+		   /*connecting to server and saving result */
+		   
+			if (Get_CountryName(i, temp) < 0)
+			{
+				
+				cout << "connect failed." << endl;
 
-			/*connecting to server and saving result */
-			res[i] = Get_Json(subrequest_cnt, query, "database");
+			}
 
-			if (res[i] < 0)
-				cout << "Connect failed." << endl;
+			if (Get_Json(i, query) < 0 )
+			{
+				res[i] = NULL;
 
-			Get_CountryName(subrequest_cnt, temp);
-		}
+				cout << "connect failed." << endl;
+			}
+
+			out.JsonArray[i] = res[i];
+			out.country[i] = country[i];
+			
 	}
+
+	return out;
 }
 
 /**
@@ -174,7 +172,7 @@ string RequestLauncher::Create_Query(LatLon pos)
 
 	query = queryStart + box + way + box + queryEnd;
 
-	cout << query;
+	//cout << query;
 
 	return query;
 }
@@ -188,17 +186,9 @@ string RequestLauncher::Create_Query(LatLon pos)
  * @exceptsafe This function does not throw exceptions.
  */
 
-int RequestLauncher::Get_Json(int id, string query, string fname)
+int RequestLauncher::Get_Json(int id, string query)
 {
-	fstream fout;
-
-	string json_name = fname;
-	string num = to_string(id);
-	json_name.append(num);
-	json_name.append(".json");
-
-	fout.open(json_name, ios::out);
-
+	
 	cout << "connecting.....\n";
 
 	try
@@ -245,14 +235,15 @@ int RequestLauncher::Get_Json(int id, string query, string fname)
 			perror("error sending query"); return -1;
 		}
 
-		const int buf_size = 1024 * 1024;// 1M
+		vector<char> json_buf(buf_size, '\0');
+		vector<char> buf(buf_size, '\0');
+
+		int pos = 0;
 
 		while (true)
 		{
-			vector<char> buf(buf_size, '\0');
-
-			const int recv_len = recv(sock, &buf[0], buf_size - 1, 0);
-
+			const int recv_len = recv(sock, &buf[pos], buf_size - 1, 0);
+			
 			if (recv_len == -1)
 			{
 				perror("error receiving response");
@@ -265,12 +256,19 @@ int RequestLauncher::Get_Json(int id, string query, string fname)
 			}
 			else
 			{
-				cout << &buf[0];
-				fout << &buf[0];
+				pos = pos + recv_len;
 			}
-		}
 
-		fout.close();
+			
+		}
+		
+		json_buf = Get_JSON_Body(buf,id);
+		
+		//cout << &json_buf[0];
+	
+		res[id] = JSON::Parse(json_buf.data());
+		
+		
 	}
 	catch (const exception&)
 	{
@@ -282,6 +280,74 @@ int RequestLauncher::Get_Json(int id, string query, string fname)
 }
 
 /**
+ * This function remove  HTTP header in Http response string.
+ *
+ * @param values contain entire  Http response string.
+ * @return JSON body string.
+ *
+ * @exceptsafe This function does not throw exceptions.
+ */
+
+vector<char> RequestLauncher::Get_JSON_Body(vector<char> buf,int id)
+{
+	vector<char> jbody(buf_size, '\0');
+
+	long pos = -1;
+	bool  flag = false;
+	int num = 0;
+
+
+	for (size_t i = 0; i < buf_size-2; i++)
+	{
+		if (buf[i] == '\n' && buf[i+1]=='0' )
+		{
+			break;
+		}
+
+		if (buf[i] == '{')
+		{
+			flag = true;
+			num++;
+		}
+		
+		if (flag)
+		{
+			pos++;
+			jbody[pos] = buf[i];
+		}
+		
+		/*if (num == 1)
+		{
+			string temp ="\
+							\"country\" : \"";
+			
+			for (size_t j = 0; j < temp.size(); j++)
+			{
+				pos++;
+
+				jbody[pos] = temp.data()[j];
+			}
+
+			for (size_t j = 0; j < country[id].size(); j++)
+			{
+				pos++;
+
+				jbody[pos] = country[id].data()[j];
+			}
+
+			pos++;
+			jbody[pos] = '\"';
+			
+			num++;
+		}*/
+			
+		
+	}
+
+
+	return jbody;
+}
+/**
  * Get country name of given location.
  *
  * @param values contain user's OSMModuleRequest.
@@ -289,6 +355,7 @@ int RequestLauncher::Get_Json(int id, string query, string fname)
  *
  * @exceptsafe This function does not throw exceptions.
  */
+
 int RequestLauncher::Get_CountryName(int id, LatLon pos)
 {
 	string comma = ",";
@@ -306,6 +373,96 @@ int RequestLauncher::Get_CountryName(int id, LatLon pos)
 		"Connection: close\r\n"
 		"\r\n";
 	query = queryStart + query + queryEnd;
-	cout << query;
-	return Get_Json(id, query, "country");
+		
+
+	try
+	{
+
+#ifdef _WIN32
+		WSADATA wsadata;
+
+		int iResult = WSAStartup(MAKEWORD(2, 2), &wsadata);
+
+		if (iResult != NO_ERROR)
+			printf("\nmy ERROR at WSAStartup()\n");
+#endif
+
+		auto sock = socket(AF_INET, SOCK_STREAM, 0);
+
+		if (sock == -1)
+		{
+			perror("error opening socket"); return -1;
+		}
+
+		hostent* remoteHost = gethostbyname(OVERPASS_HOST);
+
+		in_addr addr;
+		addr.s_addr = *(u_long*)remoteHost->h_addr_list[0];
+
+		struct sockaddr_in sin;
+
+		sin.sin_port = htons(OVERPASS_PORT);
+
+		sin.sin_addr.s_addr = inet_addr(inet_ntoa(addr));
+
+		sin.sin_family = AF_INET;
+
+		if (connect(sock, (struct sockaddr*) & sin, sizeof(sin)) == -1)
+		{
+			perror("error connecting to host"); return -1;
+		}
+
+		const int query_len = (int)query.length() + 1; // trailing '\0'
+
+		if (send(sock, query.c_str(), query_len, 0) != query_len)
+		{
+			perror("error sending query"); return -1;
+		}
+
+		vector<char> buf(buf_size, '\0');
+
+		while (true)
+		{
+			
+			const int recv_len = recv(sock, &buf[0], buf_size - 1, 0);
+
+			if (recv_len == -1)
+			{
+				perror("error receiving response");
+
+				return -1;
+			}
+			else if (recv_len == 0)
+			{
+				cout << endl; break;
+			}
+			else
+			{
+				string str;
+				
+				str.append(&buf[0]);
+				
+				int lineNo = 8;
+				
+				string line;
+				
+				istringstream stream(str);
+				
+				while (lineNo-- >= 0)
+					 getline(stream, line);
+				
+				//cout << line <<endl;
+
+				country[id] = line;
+
+			}
+
+
+		}
+	}
+	catch (const exception&)
+	{
+		return -1;
+	}
+	return 1;
 }

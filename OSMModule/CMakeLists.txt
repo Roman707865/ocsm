@@ -4,5 +4,5 @@ project(OSMModule)
 
 include_directories(Include)
 
-add_library(OSMModule Source/OSMModule.cpp Source/PriorKnowledgeProvider.cpp Source/RequestAnalyzer.cpp Source/RequestLauncher.cpp Source/ResultGenerator.cpp)
+add_library(OSMModule Source/OSMModule.cpp Source/PriorKnowledgeProvider.cpp Source/RequestAnalyzer.cpp Source/RequestLauncher.cpp Source/ResultGenerator.cpp Source/JSON.cpp Source/JSONValue.cpp)
 

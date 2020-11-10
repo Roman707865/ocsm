@@ -23,8 +23,14 @@
 #include "OSMModule.h"
 
 #include <string>
-
+#include "JSON.h"
 using namespace std;
+
+struct Launcher_Out
+{
+	vector<string> country;
+	vector<JSONValue*> JsonArray;
+};
 
 class RequestLauncher
 {
@@ -40,16 +46,21 @@ private:
 	string Create_Query(LatLon pos);
 
 	/*member function for connect to server and get JSON result */
-	int Get_Json(int id, string query, string fname);
+	int Get_Json(int id, string query);
+	
 	int Get_CountryName(int id, LatLon pos);
 
-public:
-	/*number of subrequest*/
-	int subrequest_cnt;
-	vector<int> res;
+	vector<char>  Get_JSON_Body(vector<char> buf, int id);
 
+	vector<JSONValue*> res;
+	
+	vector<string> country;
+
+	
+public:
+	
 	/*result output of RequestLauncher submodule*/
-	int Output(OSMModuleRequest request);
+	Launcher_Out  Output(OSMModuleRequest request);
 };
 
 #endif // REQUESTLAUNCHER_H
