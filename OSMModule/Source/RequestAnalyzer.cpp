@@ -72,7 +72,9 @@ vector<vector<RoadInfo>> RequestAnalyzer::Output(Analyzer_In res)
 						double x = root[L"lat"]->AsNumber();
 						double y = root[L"lon"]->AsNumber();
 
-						double d = hypot(res.pos.latitude - x, res.pos.longitude - y);
+						double dx = res.pos.latitude - x;
+						double dy = res.pos.longitude - y;
+						double d = sqrt(dx * dx + dy * dy);
 
 						if (d < min_d)
 						{
