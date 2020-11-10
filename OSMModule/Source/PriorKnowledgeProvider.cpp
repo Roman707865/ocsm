@@ -54,7 +54,11 @@ OSMModuleRequestResult& PriorKnowledgeProvider::Output(OSMModuleRequestResult& r
 		}
 		else
 		{
+#ifdef _WIN32			
 			n = _wtoi(res.road_info[j].lanes.c_str());
+#else
+			n = (int)wcstol(res.road_info[j].lanes.c_str(), 0, 10);
+#endif
 		}
 	     
 
