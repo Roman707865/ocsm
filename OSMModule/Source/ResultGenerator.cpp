@@ -31,7 +31,7 @@ PriorKnowledgeProvider PriorKnowledge_Provider{};
  *
  * @exceptsafe This function does not throw exceptions.
  */
-OSMModuleRequestResult ResultGenerator::Process(int req_num, const vector<vector<RoadInfo>>& road_info)
+OSMModuleRequestResult ResultGenerator::Process(size_t req_num, const vector<vector<RoadInfo>>& road_info)
 {
 	OSMModuleRequestResult res;
 

@@ -48,7 +48,7 @@ using namespace std;
 
 const int buf_size = 5 * 1024;// 1M
 
-
+LatLon temp_pos{ 0, 0 };
 
  /**
  * Output connect result of RequestLauncher submodule.
@@ -65,7 +65,7 @@ Launcher_Out RequestLauncher::Output(OSMModuleRequest request)
 
 	double lat = 0, lon = 0;
 
-	int subrequest_cnt=0;
+	size_t subrequest_cnt=0;
 
 
 	around = RANGE;
@@ -83,22 +83,23 @@ Launcher_Out RequestLauncher::Output(OSMModuleRequest request)
 	for (size_t i = 0; i < request.poses_buf.size(); ++i) 
 	{
 		
-			cout << "Proceeding vehicle pos " << subrequest_cnt << " long "
+			cout << "Proceeding vehicle pos " << i << " long "
 				<< request.poses_buf[i].latlon.longitude << " lat "
-				<< request.poses_buf[i].latlon.latitude << endl;
+				<< request.poses_buf[i].latlon.latitude << " heading "
+				<< request.poses_buf[i].heading<<endl;
 
 			lat = request.poses_buf[i].latlon.latitude;
 			lon = request.poses_buf[i].latlon.longitude;
 
 	
-			LatLon temp{ lon, lat };
+			temp_pos = LatLon{ lon, lat };
 
 			/*make request query*/
-			string query = Create_Query(temp);
+			string query = Create_Query(temp_pos);
 
 		   /*connecting to server and saving result */
 		   
-			if (Get_CountryName(i, temp) < 0)
+			if (Get_CountryName(i, temp_pos) < 0)
 			{
 				
 				cout << "connect failed." << endl;
@@ -114,7 +115,7 @@ Launcher_Out RequestLauncher::Output(OSMModuleRequest request)
 
 			out.JsonArray[i] = res[i];
 			out.country[i] = country[i];
-			
+			out.pos = temp_pos;
 	}
 
 	return out;
@@ -186,7 +187,7 @@ string RequestLauncher::Create_Query(LatLon pos)
  * @exceptsafe This function does not throw exceptions.
  */
 
-int RequestLauncher::Get_Json(int id, string query)
+int RequestLauncher::Get_Json(size_t id, string query)
 {
 	
 	cout << "connecting.....\n";
@@ -288,7 +289,7 @@ int RequestLauncher::Get_Json(int id, string query)
  * @exceptsafe This function does not throw exceptions.
  */
 
-vector<char> RequestLauncher::Get_JSON_Body(vector<char> buf,int id)
+vector<char> RequestLauncher::Get_JSON_Body(vector<char> buf, size_t id)
 {
 	vector<char> jbody(buf_size, '\0');
 
@@ -356,7 +357,7 @@ vector<char> RequestLauncher::Get_JSON_Body(vector<char> buf,int id)
  * @exceptsafe This function does not throw exceptions.
  */
 
-int RequestLauncher::Get_CountryName(int id, LatLon pos)
+int RequestLauncher::Get_CountryName(size_t id, LatLon pos)
 {
 	string comma = ",";
 

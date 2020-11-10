@@ -7,10 +7,33 @@
 
 #define USE_DEFAULT_VALUES		1
 #define DEFAULT_CSV_FILEPATH	"C:\\Users\\Star\\Documents\\GitHub\\fvrr_vmwork_cmake\\swift-gnss.csv"
-#define DEFAULT_POINTCOUNT		1
+#define DEFAULT_POINTCOUNT		3
 
 const string data_path = "data.txt";
 
+string DrivingDirection[3] =
+{
+	"POSITIVE",
+	"NEGATIVE",
+	"BOTH"
+};
+
+string RoadMarking[4] =
+{
+	"NONE",
+	"CONTINUOUS",
+	"DASHED",
+	"DOUBLE"
+};
+
+string RoadMarkingColor[5] =
+{
+	"WHITE",
+	"YELLOW",
+	"RED",
+	"GREEN",
+	"BLUE"
+};
 
 
 /**
@@ -47,6 +70,9 @@ void read_csv(const string &csv_path)
 		point_count = 0;
 
 		/* read by one line */
+	
+		getline(fin, line);
+
 		while (getline(fin, line))
 		{
 			/* GPS point counting */
@@ -65,6 +91,8 @@ void read_csv(const string &csv_path)
 					fields.back().push_back(field);
 				}
 			}
+
+			getline(fin, line);
 		}
 	}
 
@@ -74,7 +102,7 @@ void read_csv(const string &csv_path)
 		for (auto field : row)
 		{
 			i++;
-			if (i == 10 || i == 11)
+			if (i == 10 || i == 11 || i==19)
 			{
 				if (field != "")
 				{
@@ -140,10 +168,11 @@ int main(int argc, char** argv)
 	{
 		fin >> posebuffer[i].latlon.latitude;
 		fin >> posebuffer[i].latlon.longitude;
+		fin >> posebuffer[i].heading;
 
-		posebuffer[i].latlon.latitude= 42.476472;
-		posebuffer[i].latlon.longitude= -71.220167;
-		posebuffer[i].heading = 90;
+		//posebuffer[i].latlon.latitude= 42.476472;
+		//posebuffer[i].latlon.longitude= -71.220167;
+		//posebuffer[i].heading = 90;
 	}
 
 	request.poses_buf = posebuffer;
@@ -168,6 +197,8 @@ int main(int argc, char** argv)
 		for (size_t i = 0; i < result.road_info.size(); ++i)
 		{
 			cout << "--------------Characteristics of Road" << i << "--------------------" << endl;
+			cout << "center latitude : " << result.road_info[i].center_pos.latitude << endl;
+			cout << "center longitude : " << result.road_info[i].center_pos.longitude << endl;
 			cout<<"country : "<< result.road_info[i].country  << endl;
 			wcout << L"name : " << result.road_info[i].name << endl;
 			wcout << L"highway : " << result.road_info[i].highway << endl;
@@ -180,10 +211,19 @@ int main(int argc, char** argv)
 			for (size_t j = 0; j < result.roadpart_buf[i].lanesection_buf[0].lanes_buf.size(); j++)
 			{
 				cout << " -----Lane " << j << " property" << endl;
+				cout << " id : " << result.roadpart_buf[i].lanesection_buf[0].lanes_buf[j].id << endl;
+				cout << " next id : " << result.roadpart_buf[i].lanesection_buf[0].lanes_buf[j].next_id << endl;
+				cout << " prev id : " << result.roadpart_buf[i].lanesection_buf[0].lanes_buf[j].previous_id << endl;
+				cout << " left marking : " << RoadMarking[result.roadpart_buf[i].lanesection_buf[0].lanes_buf[j].left_marking] << endl; 
+				cout << " left marking color : " << RoadMarkingColor[result.roadpart_buf[i].lanesection_buf[0].lanes_buf[j].left_marking_color] << endl;
+				cout << " right marking : " << RoadMarking[result.roadpart_buf[i].lanesection_buf[0].lanes_buf[j].right_marking] << endl;
+				cout << " right marking color : " << RoadMarking[result.roadpart_buf[i].lanesection_buf[0].lanes_buf[j].right_marking_color] << endl;
+				cout << " direction : " << DrivingDirection[result.roadpart_buf[i].lanesection_buf[0].lanes_buf[j].driving_direction] << endl;
 				cout << " width : " << result.roadpart_buf[i].lanesection_buf[0].lanes_buf[j].width << endl;
 				cout << " speedlimit : " << result.roadpart_buf[i].lanesection_buf[0].lanes_buf[j].speedlimit << endl;
 				cout << " direction : " << result.roadpart_buf[i].lanesection_buf[0].lanes_buf[j].driving_direction << endl;
 				cout << " lateraloffset : " << result.roadpart_buf[i].lanesection_buf[0].lanes_buf[j].lateraloffset << endl;
+			
 			}
 		}
 	}

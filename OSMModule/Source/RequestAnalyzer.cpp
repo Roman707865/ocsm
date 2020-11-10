@@ -39,16 +39,19 @@ vector<vector<RoadInfo>> RequestAnalyzer::Output(Analyzer_In res)
 {
 	vector<vector<RoadInfo>> road_info;
 
-	int subreq_num = res.JsonArray.size();
+	LatLon min_pos;
 
-	int way_cnt = 0;
+	size_t subreq_num = res.JsonArray.size();
+
+	size_t way_cnt = 0;
 
 	road_info.resize(subreq_num);
 
 
 	for (int i = 0; i < subreq_num; i++)
 	{
-		
+		double min_d = 1000.0;
+
 		if (res.JsonArray[i]->IsObject() == true)
 		{
 
@@ -63,6 +66,23 @@ vector<vector<RoadInfo>> RequestAnalyzer::Output(Analyzer_In res)
 				if (root.find(L"type") != root.end() && root[L"type"]->IsString())
 				{
 					wstring key = root[L"type"]->AsString().c_str();
+					
+					if (key == L"node")
+					{
+						double x = root[L"lat"]->AsNumber();
+						double y = root[L"lon"]->AsNumber();
+
+						double d = hypot(res.pos.latitude - x, res.pos.longitude - y);
+
+						if (d < min_d)
+						{
+							min_d = d;
+							
+							min_pos.latitude = x;
+
+							min_pos.longitude = y;
+						}
+ 					}
 
 					if (key == L"way")
 					{
@@ -94,6 +114,8 @@ vector<vector<RoadInfo>> RequestAnalyzer::Output(Analyzer_In res)
 							temp.name = tags[L"name"]->AsString().c_str();
 						
 						temp.country = res.country[i];
+						
+						temp.center_pos = min_pos;
 
 						road_info[i].push_back(temp);
 						way_cnt++;

@@ -43,8 +43,10 @@ OSMModuleRequestResult RequestDataForPath(OSMModuleRequest request)
 
 	_in.JsonArray = _out.JsonArray;
 
+	_in.pos = _out.pos;
 
-	int req_num = _out.JsonArray.size();
+
+	size_t req_num = _out.JsonArray.size();
 
     vector<vector<RoadInfo>> road_info = RequestAnalyzer().Output(_in);
 

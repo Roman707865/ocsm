@@ -25,7 +25,7 @@ class ResultGenerator
 {
 public:
 	/* main process member function of this module*/
-	OSMModuleRequestResult Process(int req_num, const vector<vector<RoadInfo>>& road_info);
+	OSMModuleRequestResult Process(size_t req_num, const vector<vector<RoadInfo>>& road_info);
 
 	/*append result*/
 	void Append();

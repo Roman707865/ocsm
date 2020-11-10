@@ -36,6 +36,7 @@ struct Analyzer_In
 {
 	vector<string> country;
 	vector<JSONValue*> JsonArray;
+	LatLon pos;
 };
 
 class RequestAnalyzer

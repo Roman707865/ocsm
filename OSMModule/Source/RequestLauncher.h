@@ -30,6 +30,7 @@ struct Launcher_Out
 {
 	vector<string> country;
 	vector<JSONValue*> JsonArray;
+	LatLon pos;
 };
 
 class RequestLauncher
@@ -46,11 +47,11 @@ private:
 	string Create_Query(LatLon pos);
 
 	/*member function for connect to server and get JSON result */
-	int Get_Json(int id, string query);
+	int Get_Json(size_t id, string query);
 	
-	int Get_CountryName(int id, LatLon pos);
+	int Get_CountryName(size_t id, LatLon pos);
 
-	vector<char>  Get_JSON_Body(vector<char> buf, int id);
+	vector<char>  Get_JSON_Body(vector<char> buf, size_t id);
 
 	vector<JSONValue*> res;
 	

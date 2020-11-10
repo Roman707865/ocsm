@@ -49,29 +49,7 @@ enum RequestStatus
 	NOTFOUND
 };
 
-enum DrivingDirection
-{
-	POSITIVE,
-	NEGATIVE,
-	BOTH
-};
 
-enum RoadMarking
-{
-	NONE,
-	CONTINUOUS,
-	DASHED,
-	_DOUBLE
-};
-
-enum RoadMarkingColor
-{
-	WHITE,
-	YELLOW,
-	RED,
-	GREEN,
-	BLUE
-};
 
 struct Lane
 {
@@ -81,11 +59,12 @@ struct Lane
 	int speedlimit;
 	double width;
 	double lateraloffset;
-	DrivingDirection driving_direction;
-	RoadMarking left_marking;
-	RoadMarking right_marking;
-	RoadMarkingColor left_marking_color;
-	RoadMarkingColor right_marking_color;
+	int driving_direction;
+	int left_marking;
+	int right_marking;
+	int left_marking_color;
+	int right_marking_color;
+
 };
 
 struct LaneSection
@@ -97,6 +76,7 @@ struct LaneSection
 struct RoadPart
 {
 	vector<LaneSection> lanesection_buf;
+	
 };
 
 struct RoadInfo
@@ -110,6 +90,7 @@ struct RoadInfo
 	wstring smoothness;
 	wstring surface;
 	wstring width;
+	LatLon center_pos;
 };
 
 
