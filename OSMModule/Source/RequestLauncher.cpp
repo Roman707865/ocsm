@@ -25,7 +25,7 @@
 #include <iostream>
 #include <vector>
 #include <sstream>
-
+#include <fstream>
 
 #ifdef _WIN32
 
@@ -45,10 +45,13 @@ using namespace std;
 #define RANGE					0.00003;
 #define OVERPASS_HOST			"www.overpass-api.de"
 #define OVERPASS_PORT			80
+#define JSON_PATH				"Results.json"
 
-const int buf_size = 5 * 1024;// 1M
+const int buf_size = 10 * 1024;// 1M
 
 LatLon temp_pos{ 0, 0 };
+
+fstream fout;
 
  /**
  * Output connect result of RequestLauncher submodule.
@@ -61,12 +64,15 @@ LatLon temp_pos{ 0, 0 };
 Launcher_Out RequestLauncher::Output(OSMModuleRequest request)
 {
 
+	
+
 	Launcher_Out out;
 
 	double lat = 0, lon = 0;
 
 	size_t subrequest_cnt=0;
 
+	fout.open(JSON_PATH, ios::out);
 
 	around = RANGE;
 
@@ -117,6 +123,8 @@ Launcher_Out RequestLauncher::Output(OSMModuleRequest request)
 			out.country[i] = country[i];
 			out.pos = temp_pos;
 	}
+
+	fout.close();
 
 	return out;
 }
@@ -269,6 +277,9 @@ int RequestLauncher::Get_Json(size_t id, string query)
 	
 		res[id] = JSON::Parse(json_buf.data());
 		
+		fout << "\n";
+
+		fout << json_buf.data();
 		
 	}
 	catch (const exception&)

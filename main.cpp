@@ -7,7 +7,7 @@
 
 #define USE_DEFAULT_VALUES		1
 #define DEFAULT_CSV_FILEPATH	"C:\\Users\\Star\\Documents\\GitHub\\fvrr_vmwork_cmake\\swift-gnss.csv"
-#define DEFAULT_POINTCOUNT		3
+#define DEFAULT_POINTCOUNT		20
 
 const string data_path = "data.txt";
 
@@ -71,7 +71,6 @@ void read_csv(const string &csv_path)
 
 		/* read by one line */
 	
-		getline(fin, line);
 
 		while (getline(fin, line))
 		{
@@ -92,7 +91,7 @@ void read_csv(const string &csv_path)
 				}
 			}
 
-			getline(fin, line);
+		
 		}
 	}
 
@@ -110,6 +109,10 @@ void read_csv(const string &csv_path)
 
 					fout << field << '\n';
 				}
+				else
+				{
+					fout << 0.000 << '\n';
+				}
 			}
 		}
 
@@ -117,6 +120,8 @@ void read_csv(const string &csv_path)
 	}
 
 	fout.close();
+
+  
 }
 
 /*
