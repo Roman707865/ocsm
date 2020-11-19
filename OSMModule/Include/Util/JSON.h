@@ -1,4 +1,4 @@
-/*
+/* 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -43,7 +43,7 @@ static inline bool isinf(double x) { return !isnan(x) && isnan(x - x); }
 #include <wctype.h>
 #include <wchar.h>
 
-static inline int wcsncasecmp(const wchar_t *s1, const wchar_t *s2, size_t n)
+static inline int wcsncasecmp(const wchar_t* s1, const wchar_t* s2, size_t n)
 {
 	int lc1 = 0;
 	int lc2 = 0;
@@ -68,11 +68,11 @@ static inline int wcsncasecmp(const wchar_t *s1, const wchar_t *s2, size_t n)
 #endif
 
 // Simple function to check a string 's' has at least 'n' characters
-static inline bool simplejson_wcsnlen(const wchar_t *s, size_t n) {
+static inline bool simplejson_wcsnlen(const wchar_t* s, size_t n) {
 	if (s == 0)
 		return false;
 
-	const wchar_t *save = s;
+	const wchar_t* save = s;
 	while (n-- > 0)
 	{
 		if (*(save++) == 0) return false;
@@ -93,16 +93,18 @@ class JSON
 	friend class JSONValue;
 
 public:
-	static JSONValue* Parse(const char *data);
-	static JSONValue* Parse(const wchar_t *data);
-	static std::wstring Stringify(const JSONValue *value);
+	static JSONValue* Parse(const char* data); // NOTE: pointer must be released later
+	static JSONValue* Parse(const wchar_t* data); // NOTE: pointer must be released later
+	static std::wstring Stringify(const JSONValue* value);
+
 protected:
-	static bool SkipWhitespace(const wchar_t **data);
-	static bool ExtractString(const wchar_t **data, std::wstring &str);
-	static double ParseInt(const wchar_t **data);
-	static double ParseDecimal(const wchar_t **data);
+	static bool SkipWhitespace(const wchar_t** data);
+	static bool ExtractString(const wchar_t** data, std::wstring& str);
+	static double ParseInt(const wchar_t** data);
+	static double ParseDecimal(const wchar_t** data);
+
 private:
 	JSON();
 };
 
-#endif
+#endif // _JSON_H_

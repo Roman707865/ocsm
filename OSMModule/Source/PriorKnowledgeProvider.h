@@ -1,5 +1,5 @@
 
-/*
+/* 
  * This file is part of OSMM module and header of PriorKnowledgeProvider submodule.
  * Developed for the OpenStreet Data Management System.
  *
@@ -23,11 +23,42 @@
 
 #include "OSMModule.h"
 
+ /* 
+  *======================================================================
+  * NOTE & MODIFIED : Merged RoadPart, RoadInfo and LocalRoadDescription
+  *======================================================================
+  *
+  * Input: The PriorKnowledgeProvider submodule shall be supplied with:
+  *      a country name
+  *      a type of road corresponding to the OSM tag
+  *           (see Highway Key of OpenStreetMap. May 2020. URL:https://wiki.openstreetmap.org/wiki/Key:highway,
+				 Key_highway - OpenStreetMap Wiki.mhtml).
+  *
+  * Output: The PriorKnowledgeProvider submodule shall return
+  *      the number of lanes for the given type of road
+  *      the width of each lane
+  *
+  * System Level Requirements (SLR)
+  *      1: the PriorKnowledgeProvider shall return one output per input request
+  *      2: the PriorKnowledgeProvider shall return the number of lane, type and color of roadmarking on eachside,
+			 and width of each lane for every pair of country and OSM road type
+  *
+  *======================================================================
+  * NOTE & MODIFIED : Merged RoadPart, RoadInfo and LocalRoadDescription
+  *======================================================================
+  */
 class PriorKnowledgeProvider
 {
 public:
-	/* output member function*/
-	OSMModuleRequestResult& Output(OSMModuleRequestResult& res);
+    int GetWayWidth(const wstring& country, const wstring& highway);
+    int GetMaxSpeed(const wstring& country, const wstring& highway);
+	int GetLaneCount(const wstring& country, const wstring& highway);
+    int GetLaneWidth(const wstring& country, const wstring& highway);
+
+	RoadMarking GetLeftMarking(const wstring& country, const wstring& highway);
+	RoadMarking GetRightMarking(const wstring& country, const wstring& highway);
+	RoadMarkingColor GetLeftMarkingColor(const wstring& country, const wstring& highway);
+	RoadMarkingColor GetRightMarkingColor(const wstring& country, const wstring& highway);
 };
 
 #endif // PRIORKNOWLEDGEPROVIDER_H

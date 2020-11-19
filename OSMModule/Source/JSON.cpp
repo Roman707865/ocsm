@@ -1,4 +1,4 @@
-/*
+/* 
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -41,10 +41,10 @@ JSON::JSON()
  *
  * @return JSONValue* Returns a JSON Value representing the root, or NULL on error
  */
-JSONValue *JSON::Parse(const char *data)
+JSONValue* JSON::Parse(const char* data)
 {
 	size_t length = strlen(data) + 1;
-	wchar_t *w_data = (wchar_t*)malloc(length * sizeof(wchar_t));
+	wchar_t* w_data = (wchar_t*)malloc(length * sizeof(wchar_t));
 
 #if defined(WIN32) && !defined(__GNUC__)
 	size_t ret_value = 0;
@@ -65,7 +65,7 @@ JSONValue *JSON::Parse(const char *data)
 	}
 #endif
 
-	JSONValue *value = JSON::Parse(w_data);
+	JSONValue* value = JSON::Parse(w_data);
 	free(w_data);
 	return value;
 }
@@ -79,14 +79,14 @@ JSONValue *JSON::Parse(const char *data)
  *
  * @return JSONValue* Returns a JSON Value representing the root, or NULL on error
  */
-JSONValue *JSON::Parse(const wchar_t *data)
+JSONValue* JSON::Parse(const wchar_t* data)
 {
 	// Skip any preceding whitespace, end of data = no JSON = fail
 	if (!SkipWhitespace(&data))
 		return NULL;
 
 	// We need the start of a value here now...
-	JSONValue *value = JSONValue::Parse(&data);
+	JSONValue* value = JSONValue::Parse(&data);
 	if (value == NULL)
 		return NULL;
 
@@ -110,7 +110,7 @@ JSONValue *JSON::Parse(const wchar_t *data)
  *
  * @return std::wstring Returns a JSON encoded string representation of the given value
  */
-std::wstring JSON::Stringify(const JSONValue *value)
+std::wstring JSON::Stringify(const JSONValue* value)
 {
 	if (value != NULL)
 		return value->Stringify();
@@ -127,7 +127,7 @@ std::wstring JSON::Stringify(const JSONValue *value)
  *
  * @return bool Returns true if there is more data, or false if the end of the text was reached
  */
-bool JSON::SkipWhitespace(const wchar_t **data)
+bool JSON::SkipWhitespace(const wchar_t** data)
 {
 	while (**data != 0 && (**data == L' ' || **data == L'\t' || **data == L'\r' || **data == L'\n'))
 		(*data)++;
@@ -146,7 +146,7 @@ bool JSON::SkipWhitespace(const wchar_t **data)
  *
  * @return bool Returns true on success, false on failure
  */
-bool JSON::ExtractString(const wchar_t **data, std::wstring &str)
+bool JSON::ExtractString(const wchar_t** data, std::wstring& str)
 {
 	str = L"";
 
@@ -245,7 +245,7 @@ bool JSON::ExtractString(const wchar_t **data, std::wstring &str)
  *
  * @return double Returns the double value of the number found
  */
-double JSON::ParseInt(const wchar_t **data)
+double JSON::ParseInt(const wchar_t** data)
 {
 	double integer = 0;
 	while (**data != 0 && **data >= '0' && **data <= '9')
@@ -263,7 +263,7 @@ double JSON::ParseInt(const wchar_t **data)
  *
  * @return double Returns the double value of the decimal found
  */
-double JSON::ParseDecimal(const wchar_t **data)
+double JSON::ParseDecimal(const wchar_t** data)
 {
 	double decimal = 0.0;
 	double factor = 0.1;

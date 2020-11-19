@@ -1,4 +1,4 @@
-/*
+/* 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -46,7 +46,7 @@
  *
  * @return JSONValue* Returns a pointer to a JSONValue object on success, NULL on error
  */
-JSONValue *JSONValue::Parse(const wchar_t **data)
+JSONValue* JSONValue::Parse(const wchar_t** data)
 {
 	// Is it a string?
 	if (**data == '"')
@@ -190,7 +190,7 @@ JSONValue *JSONValue::Parse(const wchar_t **data)
 			}
 
 			// The value is here
-			JSONValue *value = Parse(data);
+			JSONValue* value = Parse(data);
 			if (value == NULL)
 			{
 				FREE_OBJECT(object);
@@ -255,7 +255,7 @@ JSONValue *JSONValue::Parse(const wchar_t **data)
 			}
 
 			// Get the value
-			JSONValue *value = Parse(data);
+			JSONValue* value = Parse(data);
 			if (value == NULL)
 			{
 				FREE_ARRAY(array);
@@ -306,7 +306,7 @@ JSONValue *JSONValue::Parse(const wchar_t **data)
  *
  * @access public
  */
-JSONValue::JSONValue(/*NULL*/)
+JSONValue::JSONValue(/* NULL */)
 {
 	type = JSONType_Null;
 }
@@ -318,7 +318,7 @@ JSONValue::JSONValue(/*NULL*/)
  *
  * @param wchar_t* m_char_value The string to use as the value
  */
-JSONValue::JSONValue(const wchar_t *m_char_value)
+JSONValue::JSONValue(const wchar_t* m_char_value)
 {
 	type = JSONType_String;
 	string_value = new std::wstring(std::wstring(m_char_value));
@@ -331,7 +331,7 @@ JSONValue::JSONValue(const wchar_t *m_char_value)
  *
  * @param std::wstring m_string_value The string to use as the value
  */
-JSONValue::JSONValue(const std::wstring &m_string_value)
+JSONValue::JSONValue(const std::wstring& m_string_value)
 {
 	type = JSONType_String;
 	string_value = new std::wstring(m_string_value);
@@ -383,7 +383,7 @@ JSONValue::JSONValue(int m_integer_value)
  *
  * @param JSONArray m_array_value The JSONArray to use as the value
  */
-JSONValue::JSONValue(const JSONArray &m_array_value)
+JSONValue::JSONValue(const JSONArray& m_array_value)
 {
 	type = JSONType_Array;
 	array_value = new JSONArray(m_array_value);
@@ -396,7 +396,7 @@ JSONValue::JSONValue(const JSONArray &m_array_value)
  *
  * @param JSONObject m_object_value The JSONObject to use as the value
  */
-JSONValue::JSONValue(const JSONObject &m_object_value)
+JSONValue::JSONValue(const JSONObject& m_object_value)
 {
 	type = JSONType_Object;
 	object_value = new JSONObject(m_object_value);
@@ -409,7 +409,7 @@ JSONValue::JSONValue(const JSONObject &m_object_value)
  *
  * @param JSONValue m_source The source JSONValue that is being copied
  */
-JSONValue::JSONValue(const JSONValue &m_source)
+JSONValue::JSONValue(const JSONValue& m_source)
 {
 	type = m_source.type;
 
@@ -468,7 +468,7 @@ JSONValue::~JSONValue()
 	{
 		JSONArray::iterator iter;
 		for (iter = array_value->begin(); iter != array_value->end(); iter++)
-			delete *iter;
+			delete* iter;
 		delete array_value;
 	}
 	else if (type == JSONType_Object)
@@ -566,7 +566,7 @@ bool JSONValue::IsObject() const
  *
  * @return std::wstring Returns the string value
  */
-const std::wstring &JSONValue::AsString() const
+const std::wstring& JSONValue::AsString() const
 {
 	return (*string_value);
 }
@@ -597,6 +597,11 @@ double JSONValue::AsNumber() const
 	return number_value;
 }
 
+int JSONValue::AsIntegerFromString() const
+{
+	return _wtoi(AsString().c_str());
+}
+
 /**
  * Retrieves the Array value of this JSONValue
  * Use IsArray() before using this method.
@@ -605,7 +610,7 @@ double JSONValue::AsNumber() const
  *
  * @return JSONArray Returns the array value
  */
-const JSONArray &JSONValue::AsArray() const
+const JSONArray& JSONValue::AsArray() const
 {
 	return (*array_value);
 }
@@ -618,7 +623,7 @@ const JSONArray &JSONValue::AsArray() const
  *
  * @return JSONObject Returns the object value
  */
-const JSONObject &JSONValue::AsObject() const
+const JSONObject& JSONValue::AsObject() const
 {
 	return (*object_value);
 }
@@ -674,7 +679,7 @@ bool JSONValue::HasChild(std::size_t index) const
  * @return JSONValue* Returns JSONValue at the given index or NULL
  *                    if it doesn't exist.
  */
-JSONValue *JSONValue::Child(std::size_t index)
+JSONValue* JSONValue::Child(std::size_t index)
 {
 	if (index < array_value->size())
 	{
@@ -816,10 +821,11 @@ std::wstring JSONValue::StringifyImpl(size_t const indentDepth) const
 
 	case JSONType_Array:
 	{
-		ret_string = indentDepth ? L"[\n" + indentStr1 : L"[";
+		ret_string = L"[";
 		JSONArray::const_iterator iter = array_value->begin();
 		while (iter != array_value->end())
 		{
+			ret_string += L"\n" + indentStr1;
 			ret_string += (*iter)->StringifyImpl(indentDepth1);
 
 			// Not at the end - add a separator
@@ -832,10 +838,11 @@ std::wstring JSONValue::StringifyImpl(size_t const indentDepth) const
 
 	case JSONType_Object:
 	{
-		ret_string = indentDepth ? L"{\n" + indentStr1 : L"{";
+		ret_string = L"{";
 		JSONObject::const_iterator iter = object_value->begin();
 		while (iter != object_value->end())
 		{
+			ret_string += L"\n" + indentStr1;
 			ret_string += StringifyString((*iter).first);
 			ret_string += L":";
 			ret_string += (*iter).second->StringifyImpl(indentDepth1);
@@ -863,7 +870,7 @@ std::wstring JSONValue::StringifyImpl(size_t const indentDepth) const
  *
  * @return std::wstring Returns the JSON string
  */
-std::wstring JSONValue::StringifyString(const std::wstring &str)
+std::wstring JSONValue::StringifyString(const std::wstring& str)
 {
 	std::wstring str_out = L"\"";
 

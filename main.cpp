@@ -2,39 +2,10 @@
 #include "OSMModule.h"
 #include <iostream>
 #include <fstream>
-#include <sstream>
-#include <vector>
 
-#define USE_DEFAULT_VALUES		1
-#define DEFAULT_CSV_FILEPATH	"C:\\Users\\Star\\Documents\\GitHub\\fvrr_vmwork_cmake\\swift-gnss.csv"
-#define DEFAULT_POINTCOUNT		20
-
-const string data_path = "data.txt";
-
-string DrivingDirection[3] =
-{
-	"POSITIVE",
-	"NEGATIVE",
-	"BOTH"
-};
-
-string RoadMarking[4] =
-{
-	"NONE",
-	"CONTINUOUS",
-	"DASHED",
-	"DOUBLE"
-};
-
-string RoadMarkingColor[5] =
-{
-	"WHITE",
-	"YELLOW",
-	"RED",
-	"GREEN",
-	"BLUE"
-};
-
+#define USE_DEFAULT_VALUES		0
+#define DEFAULT_CSV_FILEPATH	"C:\\_\\fvrr_vmwork\\fvrr_vmwork_cmake\\swift-gnss.csv"
+#define DEFAULT_POINTCOUNT		2
 
 /**
  * Read csv file content and save to text file .
@@ -44,87 +15,59 @@ string RoadMarkingColor[5] =
  *
  * @exceptsafe This function does not throw exceptions.
  */
-void read_csv(const string &csv_path)
+vector<VehiclePos> read_csv(const string &csv_path, int point_count)
 {
-
-
-
 	cout << "reading data from csv file..." << endl;
 
-	/* number of input GPS measure point */
-	int point_count = 0;
-
-	fstream fout;
+	vector<VehiclePos> posebuffer;
+	posebuffer.reserve(point_count);
 
 	/* open csv file */
 	ifstream fin(csv_path);
+	if (!fin.is_open())
+		return posebuffer;
 
-	fout.open(data_path, ios::out);
+	string line;
+	getline(fin, line);
 
-	vector<vector<string>> fields;
-
-	if (fin)
+	/* read by one line */
+	while (getline(fin, line))
 	{
-		string line;
+		line += ',';
 
-		point_count = 0;
-
-		/* read by one line */
+		VehiclePos pos;
 	
-
-		while (getline(fin, line))
+		int field_index = 0;
+		size_t prev_pos = 0;
+		while (true)
 		{
-			/* GPS point counting */
-			point_count++;
+			size_t cur_pos = line.find(',', prev_pos);
+			if (cur_pos == string::npos)
+				break;
 
-			stringstream sep(line);
-
-			string field;
-
-			fields.push_back(vector<string>());
-
-			if (point_count > 1)
+			if (cur_pos != prev_pos)
 			{
-				while (getline(sep, field, ','))
-				{
-					fields.back().push_back(field);
-				}
+				if (field_index == 9)
+					pos.coord.lat = stod(line.substr(prev_pos, cur_pos - prev_pos));
+				else if (field_index == 10)
+					pos.coord.lon = stod(line.substr(prev_pos, cur_pos - prev_pos));
+				else if (field_index == 18)
+					pos.heading = stod(line.substr(prev_pos, cur_pos - prev_pos));
 			}
 
-		
-		}
-	}
-
-	for (auto row : fields)
-	{
-		int i = 0;
-		for (auto field : row)
-		{
-			i++;
-			if (i == 10 || i == 11 || i==19)
-			{
-				if (field != "")
-				{
-					// 	cout << field << ' ';
-
-					fout << field << '\n';
-				}
-				else
-				{
-					fout << 0.000 << '\n';
-				}
-			}
+			field_index++;
+			prev_pos = cur_pos + 1;
 		}
 
-		// 	cout << '\n';
+		posebuffer.push_back(pos);
+		if (posebuffer.size() >= point_count)
+			break;
 	}
 
-	fout.close();
-
-  
+	return posebuffer;
 }
 
-/*
+/* 
  * Main function for testing OSMM module.
  */
 int main(int argc, char** argv)
@@ -153,84 +96,45 @@ int main(int argc, char** argv)
 		return 0;
 	}
 
-	if (point_count <= 0 || point_count > 70)
+	if (point_count <= 0 || point_count > MAX_POINTS_COUNT)
 	{
-		cout << "Plase input correct point count(>0 and <=70) for second argument !" << endl;
+		cout << "Plase input correct point count(>0 and <=" << MAX_POINTS_COUNT << ") for second argument !" << endl;
 		return 0;
 	}
 
-	OSMModuleRequest request{};
+	OSMModuleRequest request;
 
-	read_csv(csv_path);
-
-	fstream fin;
-
-	fin.open(data_path, ios::in);
-
-	vector<VehiclePos> posebuffer(point_count);
-	//42.476472, -71.220167
-	for (int i = 0; i < point_count; i++) // read data from text file
-	{
-		fin >> posebuffer[i].latlon.latitude;
-		fin >> posebuffer[i].latlon.longitude;
-		fin >> posebuffer[i].heading;
-
-		//posebuffer[i].latlon.latitude= 42.476472;
-		//posebuffer[i].latlon.longitude= -71.220167;
-		//posebuffer[i].heading = 90;
-	}
-
-	request.poses_buf = posebuffer;
-
-	fin.close();
+	request.poses = read_csv(csv_path, point_count);
 
 	/* send request to server and process */
 	OSMModuleRequestResult result = RequestDataForPath(request);
 
-	/*Test result output*/
+	/* Test result output */
 	cout << "Looking at result" << endl;
 
 	if (result.request_status == RequestStatus::SUCCESS)
 	{
 		cout << "Success." << endl;
 
-		cout << "The result contain " << result.road_info.size() << " RoadPart" << endl;
-		// cout<<"The first road part has "<<result.roadpart_buf[0].lanesection_buf.size() <<" Lane Sections"<<endl;
-		// cout<<"The first lane section has "<<result.roadpart_buf[0].lanesection_buf[0].lanes_buf.size()<<" Lanes"<<endl;
-	
+		cout << "The result contain " << result.road_parts.size() << " RoadPart" << endl;
 
-		for (size_t i = 0; i < result.road_info.size(); ++i)
+		wcout << L"[";
+
+		for (size_t i = 0; i < result.road_parts.size(); i++)
 		{
-			cout << "--------------Characteristics of Road" << i << "--------------------" << endl;
-			cout << "center latitude : " << result.road_info[i].center_pos.latitude << endl;
-			cout << "center longitude : " << result.road_info[i].center_pos.longitude << endl;
-			cout<<"country : "<< result.road_info[i].country  << endl;
-			wcout << L"name : " << result.road_info[i].name << endl;
-			wcout << L"highway : " << result.road_info[i].highway << endl;
-			wcout << L"lanes : " << result.road_info[i].lanes << endl;
-			wcout << L"lit : " << result.road_info[i].lit << endl;
-			wcout << L"maxspeed : " << result.road_info[i].maxspeed << endl;
-			wcout << L"smoothness : " << result.road_info[i].smoothness << endl;
-			wcout << L"surface : " << result.road_info[i].surface << endl;
-			wcout << L"width : " << result.road_info[i].width << endl;
-			for (size_t j = 0; j < result.roadpart_buf[i].lanesection_buf[0].lanes_buf.size(); j++)
-			{
-				cout << " -----Lane " << j << " property" << endl;
-				cout << " id : " << result.roadpart_buf[i].lanesection_buf[0].lanes_buf[j].id << endl;
-				cout << " next id : " << result.roadpart_buf[i].lanesection_buf[0].lanes_buf[j].next_id << endl;
-				cout << " prev id : " << result.roadpart_buf[i].lanesection_buf[0].lanes_buf[j].previous_id << endl;
-				cout << " left marking : " << RoadMarking[result.roadpart_buf[i].lanesection_buf[0].lanes_buf[j].left_marking] << endl; 
-				cout << " left marking color : " << RoadMarkingColor[result.roadpart_buf[i].lanesection_buf[0].lanes_buf[j].left_marking_color] << endl;
-				cout << " right marking : " << RoadMarking[result.roadpart_buf[i].lanesection_buf[0].lanes_buf[j].right_marking] << endl;
-				cout << " right marking color : " << RoadMarking[result.roadpart_buf[i].lanesection_buf[0].lanes_buf[j].right_marking_color] << endl;
-				cout << " direction : " << DrivingDirection[result.roadpart_buf[i].lanesection_buf[0].lanes_buf[j].driving_direction] << endl;
-				cout << " width : " << result.roadpart_buf[i].lanesection_buf[0].lanes_buf[j].width << endl;
-				cout << " speedlimit : " << result.roadpart_buf[i].lanesection_buf[0].lanes_buf[j].speedlimit << endl;
-				cout << " direction : " << result.roadpart_buf[i].lanesection_buf[0].lanes_buf[j].driving_direction << endl;
-				cout << " lateraloffset : " << result.roadpart_buf[i].lanesection_buf[0].lanes_buf[j].lateraloffset << endl;
-			
-			}
+			wcout << endl;
+
+			JSONValue* obj = result.road_parts[i].ToJSONObject();
+
+			wcout << obj->Stringify(true);
+
+			delete obj;
+
+			if (i != result.road_parts.size() - 1)
+				wcout << L",";
 		}
+
+		wcout << endl << L"]";
 	}
 	else if (result.request_status == RequestStatus::NOTFOUND)
 	{
@@ -243,8 +147,5 @@ int main(int argc, char** argv)
 
 	cout << endl << "End" << endl;
 
-	while (1)
-	{
-	}
 	return 0;
 }

@@ -1,4 +1,4 @@
-/*
+/* 
  * This file is part of OSMM module and implemention of RequestAnalyzer submodule.
  *
  * Developed for the OpenStreet Data Management System.
@@ -21,31 +21,38 @@
 #define REQUESTANALYZER_H
 
 #include "OSMModule.h"
-#include <stdio.h>
-#include <vector>
-#include "JSON.h"
 
-#define MAX_NODES				100000
-#define MAX_WAYS				1000
-#define MAX_NODES_IN_WAY		2000
-
-#define MAX_BUILDINGS			2000
-#define MAX_NODE_TAGS			2000
-
-struct Analyzer_In
-{
-	vector<string> country;
-	vector<JSONValue*> JsonArray;
-	LatLon pos;
-};
-
+ /* 
+  *======================================================================
+  * NOTE & MODIFIED : Merged RoadPart, RoadInfo and LocalRoadDescription
+  *======================================================================
+  *
+  * Input: The RequestAnalyzer submodule shall be supplied with
+  * 	    an array of relevant road informations objects
+  * 	    the number of subrequests (TODO: this is ignored)
+  * Output: The RequestAnalyzer submodule shall output an array of local road descriptions.
+  *
+  * System Level Requirements (SLR)
+  *      1: The RequestAnalyzer shall create only one output per subrequest.
+  *      2: The RequestAnalyzer shall output empty data if the array of relevant road information is empty.
+  *      3: The RequestAnalyzer shall store the country of location in the output data.
+  *      4: The RequestAnalyzer shall store the number of lane, their width and driving directions in the outputdata.
+  *      5: The RequestAnalyzer shall store the coordinate of the center of the road in the output data.
+  *      6: The RequestAnalyzer shall deduce the type of road marking for both left and right side of each lane
+  *            as being either NONE, CONTINUOUS, DASHED or DOUBLE(DOUBLED)
+  *
+  *======================================================================
+  * NOTE & MODIFIED : Merged RoadPart, RoadInfo and LocalRoadDescription
+  *======================================================================
+  *
+  */
 class RequestAnalyzer
 {
 private:
-	
+
 public:
-	/*member function for output*/
-	vector<vector<RoadInfo>> Output(Analyzer_In res);
+	/* member function for output */
+	vector<RoadPart> Process(const OSMModuleRequest& request, const vector<JSONValue*>& json_data); // SLR1, SLR2
 };
 
 #endif // REQUESTANALYZER_H

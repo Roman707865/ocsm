@@ -1,4 +1,4 @@
-/*
+/* 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -35,15 +35,15 @@ class JSONValue
 	friend class JSON;
 
 public:
-	JSONValue(/*NULL*/);
-	JSONValue(const wchar_t *m_char_value);
-	JSONValue(const std::wstring &m_string_value);
+	JSONValue(/* NULL */);
+	JSONValue(const wchar_t* m_char_value);
+	JSONValue(const std::wstring& m_string_value);
 	JSONValue(bool m_bool_value);
 	JSONValue(double m_number_value);
 	JSONValue(int m_integer_value);
-	JSONValue(const JSONArray &m_array_value);
-	JSONValue(const JSONObject &m_object_value);
-	JSONValue(const JSONValue &m_source);
+	JSONValue(const JSONArray& m_array_value);
+	JSONValue(const JSONObject& m_object_value);
+	JSONValue(const JSONValue& m_source);
 	~JSONValue();
 
 	bool IsNull() const;
@@ -53,25 +53,27 @@ public:
 	bool IsArray() const;
 	bool IsObject() const;
 
-	const std::wstring &AsString() const;
+	const std::wstring& AsString() const;
 	bool AsBool() const;
 	double AsNumber() const;
-	const JSONArray &AsArray() const;
-	const JSONObject &AsObject() const;
+	int AsIntegerFromString() const;
+	const JSONArray& AsArray() const;
+	const JSONObject& AsObject() const;
 
 	std::size_t CountChildren() const;
 	bool HasChild(std::size_t index) const;
-	JSONValue *Child(std::size_t index);
+	JSONValue* Child(std::size_t index);
 	bool HasChild(const wchar_t* name) const;
-	JSONValue *Child(const wchar_t* name);
+	JSONValue* Child(const wchar_t* name);
 	std::vector<std::wstring> ObjectKeys() const;
 
 	std::wstring Stringify(bool const prettyprint = false) const;
+
 protected:
-	static JSONValue *Parse(const wchar_t **data);
+	static JSONValue* Parse(const wchar_t** data); // NOTE: pointer must be released later
 
 private:
-	static std::wstring StringifyString(const std::wstring &str);
+	static std::wstring StringifyString(const std::wstring& str);
 	std::wstring StringifyImpl(size_t const indentDepth) const;
 	static std::wstring Indent(size_t depth);
 
@@ -81,11 +83,11 @@ private:
 	{
 		bool bool_value;
 		double number_value;
-		std::wstring *string_value;
-		JSONArray *array_value;
-		JSONObject *object_value;
+		std::wstring* string_value;
+		JSONArray* array_value;
+		JSONObject* object_value;
 	};
 
 };
 
-#endif
+#endif // _JSONVALUE_H_

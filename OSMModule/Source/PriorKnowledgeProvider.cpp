@@ -1,4 +1,4 @@
-/*
+/* 
  * This file is part of OSMM module and implemention of PriorKnowledgeProvider submodule.
  * Developed for the OpenStreet Data Management System.
  *
@@ -18,590 +18,1186 @@
  */
 #include "PriorKnowledgeProvider.h"
 
-const int  Get_data_by_country(string cn, int kind);
- /**
- * Search lane properties and add it on OSMModuleRequestResult.
- *
- * @param value contain OSMModuleRequestResult object pointer.
- * @return OSMModuleRequestResult object pointer .
- *
- * @exceptsafe This function does not throw exceptions.
- */
-OSMModuleRequestResult& PriorKnowledgeProvider::Output(OSMModuleRequestResult& res)
+int PriorKnowledgeProvider::GetWayWidth(const wstring& country, const wstring& highway)
 {
-
-
-	int k_id = 0;
-
-    vector<RoadPart> roadpart(res.road_info.size());
-
-	for (int j = 0; j < res.road_info.size(); j++)
+	if (country == L"Australia")
 	{
-        roadpart[j].lanesection_buf.resize(1);
-		
-		int n;
-		
-		string cn = res.road_info[j].country;
-
-		/****************************************setting lane properties***************************************************************/
-		if (res.road_info[j].lanes.empty())
-		{
-			
-			n = Get_data_by_country(cn,  0);
-
-			res.road_info[j].lanes = to_wstring(n);
-	
-		}
-		else
-		{
-#ifdef _WIN32			
-			n = _wtoi(res.road_info[j].lanes.c_str());
-#else
-			n = (int)wcstol(res.road_info[j].lanes.c_str(), 0, 10);
-#endif
-		}
-	     
-
-	    roadpart[j].lanesection_buf[0].lanes_buf.resize(n);
-
-		for (size_t i = 0; i < n; i++)
-		{
-			if (i == 0 && j==0)
-			{
-				roadpart[j].lanesection_buf[0].lanes_buf[i].id = 0;
-
-			}
-			else
-			{
-				k_id++;
-				roadpart[j].lanesection_buf[0].lanes_buf[i].id = k_id;
-			}
-			
-			
-			roadpart[j].lanesection_buf[0].lanes_buf[i].driving_direction = Get_data_by_country(cn, 8);
-			roadpart[j].lanesection_buf[0].lanes_buf[i].lateraloffset = Get_data_by_country(cn, 2);
-			roadpart[j].lanesection_buf[0].lanes_buf[i].speedlimit = Get_data_by_country(cn, 1);
-			roadpart[j].lanesection_buf[0].lanes_buf[i].left_marking = Get_data_by_country(cn, 3);
-			roadpart[j].lanesection_buf[0].lanes_buf[i].right_marking = Get_data_by_country(cn, 4);
-			roadpart[j].lanesection_buf[0].lanes_buf[i].left_marking_color = Get_data_by_country(cn, 5);
-			roadpart[j].lanesection_buf[0].lanes_buf[i].right_marking_color = Get_data_by_country(cn, 6);
-			roadpart[j].lanesection_buf[0].lanes_buf[i].width = Get_data_by_country(cn, 7);
-
-		}
-
-	
-		
+		return 20;
 	}
-
-	/****************************************setting prev_id& next id of lanes******************************************************/
-	for (int j = 0; j < res.road_info.size(); j++)
+	else if (country == L"Austria")
 	{
-		if (j > 0 && j < res.road_info.size() - 1)
-		{
-
-			for (size_t k = 0; k < roadpart[j].lanesection_buf[0].lanes_buf.size(); k++)
-			{
-				for (size_t m = 0; m < roadpart[j - 1].lanesection_buf[0].lanes_buf.size(); m++)
-				{
-					if (roadpart[j].lanesection_buf[0].lanes_buf[k].driving_direction ==
-						roadpart[j - 1].lanesection_buf[0].lanes_buf[m].driving_direction)
-					{
-						roadpart[j].lanesection_buf[0].lanes_buf[m].previous_id = roadpart[j - 1].lanesection_buf[0].lanes_buf[m].id;
-					}
-
-				}
-
-			}
-
-
-			for (size_t k = 0; k < roadpart[j].lanesection_buf[0].lanes_buf.size(); k++)
-			{
-				for (size_t m = 0; m < roadpart[j + 1].lanesection_buf[0].lanes_buf.size(); m++)
-				{
-					if (roadpart[j].lanesection_buf[0].lanes_buf[k].driving_direction ==
-						roadpart[j + 1].lanesection_buf[0].lanes_buf[m].driving_direction)
-					{
-						roadpart[j].lanesection_buf[0].lanes_buf[m].next_id = roadpart[j + 1].lanesection_buf[0].lanes_buf[m].id;
-					}
-
-				}
-
-			}
-
-		}
+		return 20;
 	}
-	res.roadpart_buf = roadpart;
-	return res;
-}
-/**
-* Search lane standard properties by countries .
-*
-* @param value contain country name and search item.
-* @return property value defined in OSM.(Refrence https://wiki.openstreetmap.org/wiki/Key:highway)
-*
-* @exceptsafe This function does not throw exceptions.
-*/
-const int  Get_data_by_country(string cn, int kind)
-{
-	Lane temp;
-
-	int n;
-	if (cn == "Australia")
+	else if (country == L"Belarus")
 	{
-		
-		n = 2;
-		temp.speedlimit = 100;
-		temp.lateraloffset = 0;
-		temp.left_marking = 0;
-		temp.right_marking = 0;
-		temp.left_marking_color = 3;
-		temp.right_marking_color = 3;
-		temp.width = 20;
-		temp.driving_direction = 1;
-	
-		
+		return 20;
 	}
-	else if (cn == "Austria")
+	else if (country == L"Belgium")
 	{
-		n = 2;
-		temp.speedlimit = 100;
-		temp.lateraloffset = 0;
-		temp.left_marking = 0;
-		temp.right_marking = 0;
-		temp.left_marking_color = 3;
-		temp.right_marking_color = 3;
-		temp.width = 20;
-		temp.driving_direction = 1;
+		return 20;
 	}
-	else if (cn == "Belarus")
+	else if (country == L"Brazil")
 	{
-		n = 2;
-		temp.speedlimit = 100;
-		temp.lateraloffset = 0;
-		temp.left_marking = 0;
-		temp.right_marking = 0;
-		temp.left_marking_color = 3;
-		temp.right_marking_color = 3;
-		temp.width = 20;
-		temp.driving_direction = 1;
+		return 20;
 	}
-	else if (cn == "Belgium")
+	else if (country == L"Croatia")
 	{
-		n = 2;
-		temp.speedlimit = 100;
-		temp.lateraloffset = 0;
-		temp.left_marking = 0;
-		temp.right_marking = 0;
-		temp.left_marking_color = 3;
-		temp.right_marking_color = 3;
-		temp.width = 20;
-		temp.driving_direction = 1;
+		return 20;
 	}
-	else if (cn == "Brazil")
+	else if (country == L"Czechia")
 	{
-		n = 2;
-		temp.speedlimit = 100;
-		temp.lateraloffset = 0;
-		temp.left_marking = 0;
-		temp.right_marking = 0;
-		temp.left_marking_color = 3;
-		temp.right_marking_color = 3;
-		temp.width = 20;
-		temp.driving_direction = 1;
+		return 20;
 	}
-	else if (cn == "Croatia")
+	else if (country == L"Denmark")
 	{
-		n = 2;
-		temp.speedlimit = 100;
-		temp.lateraloffset = 0;
-		temp.left_marking = 0;
-		temp.right_marking = 0;
-		temp.left_marking_color = 3;
-		temp.right_marking_color = 3;
-		temp.width = 20;
-		temp.driving_direction = 1;
+		return 20;
 	}
-	else if (cn == "Czechia")
+	else if (country == L"Dominican Republic")
 	{
-		n = 2;
-		temp.speedlimit = 100;
-		temp.lateraloffset = 0;
-		temp.left_marking = 0;
-		temp.right_marking = 0;
-		temp.left_marking_color = 3;
-		temp.right_marking_color = 3;
-		temp.width = 20;
-		temp.driving_direction = 1;
+		return 20;
 	}
-	else if (cn == "Denmark")
+	else if (country == L"France")
 	{
-		n = 2;
-		temp.speedlimit = 100;
-		temp.lateraloffset = 0;
-		temp.left_marking = 0;
-		temp.right_marking = 0;
-		temp.left_marking_color = 3;
-		temp.right_marking_color = 3;
-		temp.width = 20;
-		temp.driving_direction = 1;
+		return 20;
 	}
-	else if (cn == "Dominican Republic")
+	else if (country == L"Georgia")
 	{
-		n = 2;
-		temp.speedlimit = 100;
-		temp.lateraloffset = 0;
-		temp.left_marking = 0;
-		temp.right_marking = 0;
-		temp.left_marking_color = 3;
-		temp.right_marking_color = 3;
-		temp.width = 20;
-		temp.driving_direction = 1;
+		return 20;
 	}
-	else if (cn == "France")
+	else if (country == L"Germany")
 	{
-		n = 2;
-		temp.speedlimit = 100;
-		temp.lateraloffset = 0;
-		temp.left_marking = 0;
-		temp.right_marking = 0;
-		temp.left_marking_color = 3;
-		temp.right_marking_color = 3;
-		temp.width = 20;
-		temp.driving_direction = 1;
+		return 20;
 	}
-	else if (cn == "Georgia")
+	else if (country == L"Greece")
 	{
-		n = 2;
-		temp.speedlimit = 100;
-		temp.lateraloffset = 0;
-		temp.left_marking = 0;
-		temp.right_marking = 0;
-		temp.left_marking_color = 3;
-		temp.right_marking_color = 3;
-		temp.width = 20;
-		temp.driving_direction = 1;
+		return 20;
 	}
-	else if (cn == "Germany")
+	else if (country == L"Hungary")
 	{
-		n = 2;
-		temp.speedlimit = 100;
-		temp.lateraloffset = 0;
-		temp.left_marking = 0;
-		temp.right_marking = 0;
-		temp.left_marking_color = 3;
-		temp.right_marking_color = 3;
-		temp.width = 20;
-		temp.driving_direction = 1;
+		return 20;
 	}
-	else if (cn == "Greece")
+	else if (country == L"Indonesia")
 	{
-		n = 2;
-		temp.speedlimit = 100;
-		temp.lateraloffset = 0;
-		temp.left_marking = 0;
-		temp.right_marking = 0;
-		temp.left_marking_color = 3;
-		temp.right_marking_color = 3;
-		temp.width = 20;
-		temp.driving_direction = 1;
+		return 20;
 	}
-	else if (cn == "Hungary")
+	else if (country == L"Iran")
 	{
-		n = 2;
-		temp.speedlimit = 100;
-		temp.lateraloffset = 0;
-		temp.left_marking = 0;
-		temp.right_marking = 0;
-		temp.left_marking_color = 3;
-		temp.right_marking_color = 3;
-		temp.width = 20;
+		return 20;
 	}
-	else if (cn == "Indonesia")
+	else if (country == L"Israel")
 	{
-		n = 2;
-		temp.speedlimit = 100;
-		temp.lateraloffset = 0;
-		temp.left_marking = 0;
-		temp.right_marking = 0;
-		temp.left_marking_color = 3;
-		temp.right_marking_color = 3;
-		temp.width = 20;
-		temp.driving_direction = 1;
+		return 20;
 	}
-	else if (cn == "Iran")
+	else if (country == L"Italy")
 	{
-		n = 2;
-		temp.speedlimit = 100;
-		temp.lateraloffset = 0;
-		temp.left_marking = 0;
-		temp.right_marking = 0;
-		temp.left_marking_color = 3;
-		temp.right_marking_color = 3;
-		temp.width = 20;
-		temp.driving_direction = 1;
+		return 20;
 	}
-	else if (cn == "Israel")
+	else if (country == L"Japan")
 	{
-		n = 2;
-		temp.speedlimit = 100;
-		temp.lateraloffset = 0;
-		temp.left_marking = 0;
-		temp.right_marking = 0;
-		temp.left_marking_color = 3;
-		temp.right_marking_color = 3;
-		temp.width = 20;
-		temp.driving_direction = 1;
+		return 20;
 	}
-	else if (cn == "Italy")
+	else if (country == L"Korea")
 	{
-		n = 2;
-		temp.speedlimit = 100;
-		temp.lateraloffset = 0;
-		temp.left_marking = 0;
-		temp.right_marking = 0;
-		temp.left_marking_color = 3;
-		temp.right_marking_color = 3;
-		temp.width = 20;
-		temp.driving_direction = 1;
+		return 20;
 	}
-	else if (cn == "Japan")
+	else if (country == L"Malaysia")
 	{
-		n = 2;
-		temp.speedlimit = 100;
-		temp.lateraloffset = 0;
-		temp.left_marking = 0;
-		temp.right_marking = 0;
-		temp.left_marking_color = 3;
-		temp.right_marking_color = 3;
-		temp.width = 20;
-		temp.driving_direction = 1;
+		return 20;
 	}
-	else if (cn == "Korea")
+	else if (country == L"Netherlands")
 	{
-		n = 2;
-		temp.speedlimit = 100;
-		temp.lateraloffset = 0;
-		temp.left_marking = 0;
-		temp.right_marking = 0;
-		temp.left_marking_color = 3;
-		temp.right_marking_color = 3;
-		temp.width = 20;
-		temp.driving_direction = 1;
+		return 20;
 	}
-	else if (cn == "Malaysia")
+	else if (country == L"New Zealand")
 	{
-		n = 2;
-		temp.speedlimit = 100;
-		temp.lateraloffset = 0;
-		temp.left_marking = 0;
-		temp.right_marking = 0;
-		temp.left_marking_color = 3;
-		temp.right_marking_color = 3;
-		temp.width = 20;
-		temp.driving_direction = 1;
+		return 20;
 	}
-	else if (cn == "Netherlands")
+	else if (country == L"Norway")
 	{
-		n = 2;
-		temp.speedlimit = 100;
-		temp.lateraloffset = 0;
-		temp.left_marking = 0;
-		temp.right_marking = 0;
-		temp.left_marking_color = 3;
-		temp.right_marking_color = 3;
-		temp.width = 20;
-		temp.driving_direction = 1;
+		return 20;
 	}
-	else if (cn == "New Zealand")
+	else if (country == L"Philippines")
 	{
-		n = 2;
-		temp.speedlimit = 100;
-		temp.lateraloffset = 0;
-		temp.left_marking = 0;
-		temp.right_marking = 0;
-		temp.left_marking_color = 3;
-		temp.right_marking_color = 3;
-		temp.width = 20;
-		temp.driving_direction = 1;
+		return 20;
 	}
-	else if (cn == "Norway")
+	else if (country == L"Poland")
 	{
-		n = 2;
-		temp.speedlimit = 100;
-		temp.lateraloffset = 0;
-		temp.left_marking = 0;
-		temp.right_marking = 0;
-		temp.left_marking_color = 3;
-		temp.right_marking_color = 3;
-		temp.width = 20;
-		temp.driving_direction = 1;
+		return 20;
 	}
-	else if (cn == "Philippines")
+	else if (country == L"Portugal")
 	{
-		n = 2;
-		temp.speedlimit = 100;
-		temp.lateraloffset = 0;
-		temp.left_marking = 0;
-		temp.right_marking = 0;
-		temp.left_marking_color = 3;
-		temp.right_marking_color = 3;
-		temp.width = 20;
-		temp.driving_direction = 1;
+		return 20;
 	}
-	else if (cn == "Poland")
+	else if (country == L"Romania")
 	{
-		n = 2;
-		temp.speedlimit = 100;
-		temp.lateraloffset = 0;
-		temp.left_marking = 0;
-		temp.right_marking = 0;
-		temp.left_marking_color = 3;
-		temp.right_marking_color = 3;
-		temp.width = 20;
-		temp.driving_direction = 1;
+		return 20;
 	}
-	else if (cn == "Portugal")
+	else if (country == L"Russia")
 	{
-		n = 2;
-		temp.speedlimit = 100;
-		temp.lateraloffset = 0;
-		temp.left_marking = 0;
-		temp.right_marking = 0;
-		temp.left_marking_color = 3;
-		temp.right_marking_color = 3;
-		temp.width = 20;
-		temp.driving_direction = 1;
+		return 20;
 	}
-	else if (cn == "Romania")
+	else if (country == L"Spain")
 	{
-		n = 2;
-		temp.speedlimit = 100;
-		temp.lateraloffset = 0;
-		temp.left_marking = 0;
-		temp.right_marking = 0;
-		temp.left_marking_color = 3;
-		temp.right_marking_color = 3;
-		temp.width = 20;
-		temp.driving_direction = 1;
+		return 20;
 	}
-	else if (cn == "Russia")
+	else if (country == L"Sweden")
 	{
-		n = 2;
-		temp.speedlimit = 100;
-		temp.lateraloffset = 0;
-		temp.left_marking = 0;
-		temp.right_marking = 0;
-		temp.left_marking_color = 3;
-		temp.right_marking_color = 3;
-		temp.width = 20;
-		temp.driving_direction = 1;
+		return 20;
 	}
-	else if (cn == "Spain")
+	else if (country == L"Switzerland")
 	{
-		n = 2;
-		temp.speedlimit = 100;
-		temp.lateraloffset = 0;
-		temp.left_marking = 0;
-		temp.right_marking = 0;
-		temp.left_marking_color = 3;
-		temp.right_marking_color = 3;
-		temp.width = 20;
-		temp.driving_direction = 1;
+		return 20;
 	}
-	else if (cn == "Sweden")
+	else if (country == L"Turkey")
 	{
-		n = 2;
-		temp.speedlimit = 100;
-		temp.lateraloffset = 0;
-		temp.left_marking = 0;
-		temp.right_marking = 0;
-		temp.left_marking_color = 3;
-		temp.right_marking_color = 3;
-		temp.width = 20;
-		temp.driving_direction = 1;
+		return 20;
 	}
-	else if (cn == "Switzerland")
+	else if (country == L"United Kingdom")
 	{
-		n = 2;
-		temp.speedlimit = 100;
-		temp.lateraloffset = 0;
-		temp.left_marking = 0;
-		temp.right_marking = 0;
-		temp.left_marking_color = 3;
-		temp.right_marking_color = 3;
-		temp.width = 20;
-		temp.driving_direction = 1;
+		return 20;
 	}
-	else if (cn == "Turkey")
+	else if (country == L"United States")
 	{
-		n = 2;
-		temp.speedlimit = 100;
-		temp.lateraloffset = 0;
-		temp.left_marking = 0;
-		temp.right_marking = 0;
-		temp.left_marking_color = 3;
-		temp.right_marking_color = 3;
-		temp.width = 20;
-		temp.driving_direction = 1;
-	}
-	else if (cn == "United Kingdom")
-	{
-		n = 2;
-		temp.speedlimit = 100;
-		temp.lateraloffset = 0;
-		temp.left_marking = 0;
-		temp.right_marking = 0;
-		temp.left_marking_color = 3;
-		temp.right_marking_color = 3;
-		temp.width = 20;
-		temp.driving_direction = 1;
-	}
-	else if (cn == "United States")
-	{
-		n = 2;
-		temp.speedlimit = 100;
-		temp.lateraloffset = 0;
-		temp.left_marking = 0;
-		temp.right_marking = 0;
-		temp.left_marking_color = 3;
-		temp.right_marking_color = 3;
-		temp.width = 20;
-		temp.driving_direction = 1;
+		return 20;
 	}
 	else
 	{
-		n = 2;
-		temp.speedlimit = 100;
-		temp.lateraloffset = 0;
-		temp.left_marking = 0;
-		temp.right_marking = 0;
-		temp.left_marking_color = 3;
-		temp.right_marking_color = 3;
-		temp.width = 20;
-		temp.driving_direction = 1;
+		return 20;
 	}
+}
 
-	switch (kind)
+int PriorKnowledgeProvider::GetMaxSpeed(const wstring& country, const wstring& highway)
+{
+	if (country == L"Australia")
 	{
-		case 0:
-			return n;
-		case 1:
-			return temp.speedlimit;
-		case 2:
-			return (int)temp.lateraloffset;
-		case 3:
-			return temp.left_marking;
-		case 4:
-			return temp.right_marking;
-		case 5:
-			return temp.left_marking_color;
-		case 6:
-			return temp.right_marking_color;
-		case 7:
-			return (int)temp.width;
-		case 8:
-			return temp.driving_direction;
+		return 100;
 	}
+	else if (country == L"Austria")
+	{
+		return 100;
+	}
+	else if (country == L"Belarus")
+	{
+		return 100;
+	}
+	else if (country == L"Belgium")
+	{
+		return 100;
+	}
+	else if (country == L"Brazil")
+	{
+		return 100;
+	}
+	else if (country == L"Croatia")
+	{
+		return 100;
+	}
+	else if (country == L"Czechia")
+	{
+		return 100;
+	}
+	else if (country == L"Denmark")
+	{
+		return 100;
+	}
+	else if (country == L"Dominican Republic")
+	{
+		return 100;
+	}
+	else if (country == L"France")
+	{
+		return 100;
+	}
+	else if (country == L"Georgia")
+	{
+		return 100;
+	}
+	else if (country == L"Germany")
+	{
+		return 100;
+	}
+	else if (country == L"Greece")
+	{
+		return 100;
+	}
+	else if (country == L"Hungary")
+	{
+		return 100;
+	}
+	else if (country == L"Indonesia")
+	{
+		return 100;
+	}
+	else if (country == L"Iran")
+	{
+		return 100;
+	}
+	else if (country == L"Israel")
+	{
+		return 100;
+	}
+	else if (country == L"Italy")
+	{
+		return 100;
+	}
+	else if (country == L"Japan")
+	{
+		return 100;
+	}
+	else if (country == L"Korea")
+	{
+		return 100;
+	}
+	else if (country == L"Malaysia")
+	{
+		return 100;
+	}
+	else if (country == L"Netherlands")
+	{
+		return 100;
+	}
+	else if (country == L"New Zealand")
+	{
+		return 100;
+	}
+	else if (country == L"Norway")
+	{
+		return 100;
+	}
+	else if (country == L"Philippines")
+	{
+		return 100;
+	}
+	else if (country == L"Poland")
+	{
+		return 100;
+	}
+	else if (country == L"Portugal")
+	{
+		return 100;
+	}
+	else if (country == L"Romania")
+	{
+		return 100;
+	}
+	else if (country == L"Russia")
+	{
+		return 100;
+	}
+	else if (country == L"Spain")
+	{
+		return 100;
+	}
+	else if (country == L"Sweden")
+	{
+		return 100;
+	}
+	else if (country == L"Switzerland")
+	{
+		return 100;
+	}
+	else if (country == L"Turkey")
+	{
+		return 100;
+	}
+	else if (country == L"United Kingdom")
+	{
+		return 100;
+	}
+	else if (country == L"United States")
+	{
+		return 100;
+	}
+	else
+	{
+		return 100;
+	}
+}
 
-	return 0;
+int PriorKnowledgeProvider::GetLaneCount(const wstring& country, const wstring& highway)
+{
+	if (country == L"Australia")
+	{
+		return 2;
+	}
+	else if (country == L"Austria")
+	{
+		return 2;
+	}
+	else if (country == L"Belarus")
+	{
+		return 2;
+	}
+	else if (country == L"Belgium")
+	{
+		return 2;
+	}
+	else if (country == L"Brazil")
+	{
+		return 2;
+	}
+	else if (country == L"Croatia")
+	{
+		return 2;
+	}
+	else if (country == L"Czechia")
+	{
+		return 2;
+	}
+	else if (country == L"Denmark")
+	{
+		return 2;
+	}
+	else if (country == L"Dominican Republic")
+	{
+		return 2;
+	}
+	else if (country == L"France")
+	{
+		return 2;
+	}
+	else if (country == L"Georgia")
+	{
+		return 2;
+	}
+	else if (country == L"Germany")
+	{
+		return 2;
+	}
+	else if (country == L"Greece")
+	{
+		return 2;
+	}
+	else if (country == L"Hungary")
+	{
+		return 2;
+	}
+	else if (country == L"Indonesia")
+	{
+		return 2;
+	}
+	else if (country == L"Iran")
+	{
+		return 2;
+	}
+	else if (country == L"Israel")
+	{
+		return 2;
+	}
+	else if (country == L"Italy")
+	{
+		return 2;
+	}
+	else if (country == L"Japan")
+	{
+		return 2;
+	}
+	else if (country == L"Korea")
+	{
+		return 2;
+	}
+	else if (country == L"Malaysia")
+	{
+		return 2;
+	}
+	else if (country == L"Netherlands")
+	{
+		return 2;
+	}
+	else if (country == L"New Zealand")
+	{
+		return 2;
+	}
+	else if (country == L"Norway")
+	{
+		return 2;
+	}
+	else if (country == L"Philippines")
+	{
+		return 2;
+	}
+	else if (country == L"Poland")
+	{
+		return 2;
+	}
+	else if (country == L"Portugal")
+	{
+		return 2;
+	}
+	else if (country == L"Romania")
+	{
+		return 2;
+	}
+	else if (country == L"Russia")
+	{
+		return 2;
+	}
+	else if (country == L"Spain")
+	{
+		return 2;
+	}
+	else if (country == L"Sweden")
+	{
+		return 2;
+	}
+	else if (country == L"Switzerland")
+	{
+		return 2;
+	}
+	else if (country == L"Turkey")
+	{
+		return 2;
+	}
+	else if (country == L"United Kingdom")
+	{
+		return 2;
+	}
+	else if (country == L"United States")
+	{
+		return 2;
+	}
+	else
+	{
+		return 2;
+	}
+}
+
+int PriorKnowledgeProvider::GetLaneWidth(const wstring& country, const wstring& highway)
+{
+	if (country == L"Australia")
+	{
+		return 6;
+	}
+	else if (country == L"Austria")
+	{
+		return 6;
+	}
+	else if (country == L"Belarus")
+	{
+		return 6;
+	}
+	else if (country == L"Belgium")
+	{
+		return 6;
+	}
+	else if (country == L"Brazil")
+	{
+		return 6;
+	}
+	else if (country == L"Croatia")
+	{
+		return 6;
+	}
+	else if (country == L"Czechia")
+	{
+		return 6;
+	}
+	else if (country == L"Denmark")
+	{
+		return 6;
+	}
+	else if (country == L"Dominican Republic")
+	{
+		return 6;
+	}
+	else if (country == L"France")
+	{
+		return 6;
+	}
+	else if (country == L"Georgia")
+	{
+		return 6;
+	}
+	else if (country == L"Germany")
+	{
+		return 6;
+	}
+	else if (country == L"Greece")
+	{
+		return 6;
+	}
+	else if (country == L"Hungary")
+	{
+		return 6;
+	}
+	else if (country == L"Indonesia")
+	{
+		return 6;
+	}
+	else if (country == L"Iran")
+	{
+		return 6;
+	}
+	else if (country == L"Israel")
+	{
+		return 6;
+	}
+	else if (country == L"Italy")
+	{
+		return 6;
+	}
+	else if (country == L"Japan")
+	{
+		return 6;
+	}
+	else if (country == L"Korea")
+	{
+		return 6;
+	}
+	else if (country == L"Malaysia")
+	{
+		return 6;
+	}
+	else if (country == L"Netherlands")
+	{
+		return 6;
+	}
+	else if (country == L"New Zealand")
+	{
+		return 6;
+	}
+	else if (country == L"Norway")
+	{
+		return 6;
+	}
+	else if (country == L"Philippines")
+	{
+		return 6;
+	}
+	else if (country == L"Poland")
+	{
+		return 6;
+	}
+	else if (country == L"Portugal")
+	{
+		return 6;
+	}
+	else if (country == L"Romania")
+	{
+		return 6;
+	}
+	else if (country == L"Russia")
+	{
+		return 6;
+	}
+	else if (country == L"Spain")
+	{
+		return 6;
+	}
+	else if (country == L"Sweden")
+	{
+		return 6;
+	}
+	else if (country == L"Switzerland")
+	{
+		return 6;
+	}
+	else if (country == L"Turkey")
+	{
+		return 6;
+	}
+	else if (country == L"United Kingdom")
+	{
+		return 6;
+	}
+	else if (country == L"United States")
+	{
+		return 6;
+	}
+	else
+	{
+		return 6;
+	}
+}
+
+RoadMarking PriorKnowledgeProvider::GetLeftMarking(const wstring& country, const wstring& highway)
+{
+	if (country == L"Australia")
+	{
+		return NONE;
+	}
+	else if (country == L"Austria")
+	{
+		return NONE;
+	}
+	else if (country == L"Belarus")
+	{
+		return NONE;
+	}
+	else if (country == L"Belgium")
+	{
+		return NONE;
+	}
+	else if (country == L"Brazil")
+	{
+		return NONE;
+	}
+	else if (country == L"Croatia")
+	{
+		return NONE;
+	}
+	else if (country == L"Czechia")
+	{
+		return NONE;
+	}
+	else if (country == L"Denmark")
+	{
+		return NONE;
+	}
+	else if (country == L"Dominican Republic")
+	{
+		return NONE;
+	}
+	else if (country == L"France")
+	{
+		return NONE;
+	}
+	else if (country == L"Georgia")
+	{
+		return NONE;
+	}
+	else if (country == L"Germany")
+	{
+		return NONE;
+	}
+	else if (country == L"Greece")
+	{
+		return NONE;
+	}
+	else if (country == L"Hungary")
+	{
+		return NONE;
+	}
+	else if (country == L"Indonesia")
+	{
+		return NONE;
+	}
+	else if (country == L"Iran")
+	{
+		return NONE;
+	}
+	else if (country == L"Israel")
+	{
+		return NONE;
+	}
+	else if (country == L"Italy")
+	{
+		return NONE;
+	}
+	else if (country == L"Japan")
+	{
+		return NONE;
+	}
+	else if (country == L"Korea")
+	{
+		return NONE;
+	}
+	else if (country == L"Malaysia")
+	{
+		return NONE;
+	}
+	else if (country == L"Netherlands")
+	{
+		return NONE;
+	}
+	else if (country == L"New Zealand")
+	{
+		return NONE;
+	}
+	else if (country == L"Norway")
+	{
+		return NONE;
+	}
+	else if (country == L"Philippines")
+	{
+		return NONE;
+	}
+	else if (country == L"Poland")
+	{
+		return NONE;
+	}
+	else if (country == L"Portugal")
+	{
+		return NONE;
+	}
+	else if (country == L"Romania")
+	{
+		return NONE;
+	}
+	else if (country == L"Russia")
+	{
+		return NONE;
+	}
+	else if (country == L"Spain")
+	{
+		return NONE;
+	}
+	else if (country == L"Sweden")
+	{
+		return NONE;
+	}
+	else if (country == L"Switzerland")
+	{
+		return NONE;
+	}
+	else if (country == L"Turkey")
+	{
+		return NONE;
+	}
+	else if (country == L"United Kingdom")
+	{
+		return NONE;
+	}
+	else if (country == L"United States")
+	{
+		return NONE;
+	}
+	else
+	{
+		return NONE;
+	}
+}
+
+RoadMarking PriorKnowledgeProvider::GetRightMarking(const wstring& country, const wstring& highway)
+{
+	if (country == L"Australia")
+	{
+		return NONE;
+	}
+	else if (country == L"Austria")
+	{
+		return NONE;
+	}
+	else if (country == L"Belarus")
+	{
+		return NONE;
+	}
+	else if (country == L"Belgium")
+	{
+		return NONE;
+	}
+	else if (country == L"Brazil")
+	{
+		return NONE;
+	}
+	else if (country == L"Croatia")
+	{
+		return NONE;
+	}
+	else if (country == L"Czechia")
+	{
+		return NONE;
+	}
+	else if (country == L"Denmark")
+	{
+		return NONE;
+	}
+	else if (country == L"Dominican Republic")
+	{
+		return NONE;
+	}
+	else if (country == L"France")
+	{
+		return NONE;
+	}
+	else if (country == L"Georgia")
+	{
+		return NONE;
+	}
+	else if (country == L"Germany")
+	{
+		return NONE;
+	}
+	else if (country == L"Greece")
+	{
+		return NONE;
+	}
+	else if (country == L"Hungary")
+	{
+		return NONE;
+	}
+	else if (country == L"Indonesia")
+	{
+		return NONE;
+	}
+	else if (country == L"Iran")
+	{
+		return NONE;
+	}
+	else if (country == L"Israel")
+	{
+		return NONE;
+	}
+	else if (country == L"Italy")
+	{
+		return NONE;
+	}
+	else if (country == L"Japan")
+	{
+		return NONE;
+	}
+	else if (country == L"Korea")
+	{
+		return NONE;
+	}
+	else if (country == L"Malaysia")
+	{
+		return NONE;
+	}
+	else if (country == L"Netherlands")
+	{
+		return NONE;
+	}
+	else if (country == L"New Zealand")
+	{
+		return NONE;
+	}
+	else if (country == L"Norway")
+	{
+		return NONE;
+	}
+	else if (country == L"Philippines")
+	{
+		return NONE;
+	}
+	else if (country == L"Poland")
+	{
+		return NONE;
+	}
+	else if (country == L"Portugal")
+	{
+		return NONE;
+	}
+	else if (country == L"Romania")
+	{
+		return NONE;
+	}
+	else if (country == L"Russia")
+	{
+		return NONE;
+	}
+	else if (country == L"Spain")
+	{
+		return NONE;
+	}
+	else if (country == L"Sweden")
+	{
+		return NONE;
+	}
+	else if (country == L"Switzerland")
+	{
+		return NONE;
+	}
+	else if (country == L"Turkey")
+	{
+		return NONE;
+	}
+	else if (country == L"United Kingdom")
+	{
+		return NONE;
+	}
+	else if (country == L"United States")
+	{
+		return NONE;
+	}
+	else
+	{
+		return NONE;
+	}
+}
+
+RoadMarkingColor PriorKnowledgeProvider::GetLeftMarkingColor(const wstring& country, const wstring& highway)
+{
+	if (country == L"Australia")
+	{
+		return GREEN;
+	}
+	else if (country == L"Austria")
+	{
+		return GREEN;
+	}
+	else if (country == L"Belarus")
+	{
+		return GREEN;
+	}
+	else if (country == L"Belgium")
+	{
+		return GREEN;
+	}
+	else if (country == L"Brazil")
+	{
+		return GREEN;
+	}
+	else if (country == L"Croatia")
+	{
+		return GREEN;
+	}
+	else if (country == L"Czechia")
+	{
+		return GREEN;
+	}
+	else if (country == L"Denmark")
+	{
+		return GREEN;
+	}
+	else if (country == L"Dominican Republic")
+	{
+		return GREEN;
+	}
+	else if (country == L"France")
+	{
+		return GREEN;
+	}
+	else if (country == L"Georgia")
+	{
+		return GREEN;
+	}
+	else if (country == L"Germany")
+	{
+		return GREEN;
+	}
+	else if (country == L"Greece")
+	{
+		return GREEN;
+	}
+	else if (country == L"Hungary")
+	{
+		return GREEN;
+	}
+	else if (country == L"Indonesia")
+	{
+		return GREEN;
+	}
+	else if (country == L"Iran")
+	{
+		return GREEN;
+	}
+	else if (country == L"Israel")
+	{
+		return GREEN;
+	}
+	else if (country == L"Italy")
+	{
+		return GREEN;
+	}
+	else if (country == L"Japan")
+	{
+		return GREEN;
+	}
+	else if (country == L"Korea")
+	{
+		return GREEN;
+	}
+	else if (country == L"Malaysia")
+	{
+		return GREEN;
+	}
+	else if (country == L"Netherlands")
+	{
+		return GREEN;
+	}
+	else if (country == L"New Zealand")
+	{
+		return GREEN;
+	}
+	else if (country == L"Norway")
+	{
+		return GREEN;
+	}
+	else if (country == L"Philippines")
+	{
+		return GREEN;
+	}
+	else if (country == L"Poland")
+	{
+		return GREEN;
+	}
+	else if (country == L"Portugal")
+	{
+		return GREEN;
+	}
+	else if (country == L"Romania")
+	{
+		return GREEN;
+	}
+	else if (country == L"Russia")
+	{
+		return GREEN;
+	}
+	else if (country == L"Spain")
+	{
+		return GREEN;
+	}
+	else if (country == L"Sweden")
+	{
+		return GREEN;
+	}
+	else if (country == L"Switzerland")
+	{
+		return GREEN;
+	}
+	else if (country == L"Turkey")
+	{
+		return GREEN;
+	}
+	else if (country == L"United Kingdom")
+	{
+		return GREEN;
+	}
+	else if (country == L"United States")
+	{
+		return GREEN;
+	}
+	else
+	{
+		return GREEN;
+	}
+}
+
+RoadMarkingColor PriorKnowledgeProvider::GetRightMarkingColor(const wstring& country, const wstring& highway)
+{
+	if (country == L"Australia")
+	{
+		return GREEN;
+	}
+	else if (country == L"Austria")
+	{
+		return GREEN;
+	}
+	else if (country == L"Belarus")
+	{
+		return GREEN;
+	}
+	else if (country == L"Belgium")
+	{
+		return GREEN;
+	}
+	else if (country == L"Brazil")
+	{
+		return GREEN;
+	}
+	else if (country == L"Croatia")
+	{
+		return GREEN;
+	}
+	else if (country == L"Czechia")
+	{
+		return GREEN;
+	}
+	else if (country == L"Denmark")
+	{
+		return GREEN;
+	}
+	else if (country == L"Dominican Republic")
+	{
+		return GREEN;
+	}
+	else if (country == L"France")
+	{
+		return GREEN;
+	}
+	else if (country == L"Georgia")
+	{
+		return GREEN;
+	}
+	else if (country == L"Germany")
+	{
+		return GREEN;
+	}
+	else if (country == L"Greece")
+	{
+		return GREEN;
+	}
+	else if (country == L"Hungary")
+	{
+		return GREEN;
+	}
+	else if (country == L"Indonesia")
+	{
+		return GREEN;
+	}
+	else if (country == L"Iran")
+	{
+		return GREEN;
+	}
+	else if (country == L"Israel")
+	{
+		return GREEN;
+	}
+	else if (country == L"Italy")
+	{
+		return GREEN;
+	}
+	else if (country == L"Japan")
+	{
+		return GREEN;
+	}
+	else if (country == L"Korea")
+	{
+		return GREEN;
+	}
+	else if (country == L"Malaysia")
+	{
+		return GREEN;
+	}
+	else if (country == L"Netherlands")
+	{
+		return GREEN;
+	}
+	else if (country == L"New Zealand")
+	{
+		return GREEN;
+	}
+	else if (country == L"Norway")
+	{
+		return GREEN;
+	}
+	else if (country == L"Philippines")
+	{
+		return GREEN;
+	}
+	else if (country == L"Poland")
+	{
+		return GREEN;
+	}
+	else if (country == L"Portugal")
+	{
+		return GREEN;
+	}
+	else if (country == L"Romania")
+	{
+		return GREEN;
+	}
+	else if (country == L"Russia")
+	{
+		return GREEN;
+	}
+	else if (country == L"Spain")
+	{
+		return GREEN;
+	}
+	else if (country == L"Sweden")
+	{
+		return GREEN;
+	}
+	else if (country == L"Switzerland")
+	{
+		return GREEN;
+	}
+	else if (country == L"Turkey")
+	{
+		return GREEN;
+	}
+	else if (country == L"United Kingdom")
+	{
+		return GREEN;
+	}
+	else if (country == L"United States")
+	{
+		return GREEN;
+	}
+	else
+	{
+		return GREEN;
+	}
 }

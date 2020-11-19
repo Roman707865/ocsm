@@ -1,4 +1,4 @@
-/*
+/* 
  * This file is part of OSMM module and header of ResultGenerator submodule.
  * Developed for the OpenStreet Data Management System.
  * This is submodule for complete OSMModuleRequestResult.
@@ -18,32 +18,29 @@
 
 
 #include "ResultGenerator.h"
-#include "PriorKnowledgeProvider.h"
+#include <fstream>
 
-/*PriorKnowledgeProvider object*/
-PriorKnowledgeProvider PriorKnowledge_Provider{};
+#define JSON_PATH				"Results.json"
 
-/**
- * Complete result of OSM module request.
- *
- * @param values contain number of subrequences .
- * @return completed OSMModuleRequestResult object pointer.
- *
- * @exceptsafe This function does not throw exceptions.
- */
-OSMModuleRequestResult ResultGenerator::Process(size_t req_num, const vector<vector<RoadInfo>>& road_info)
+ /**
+  * Complete result of OSM module request.
+  *
+  * @param values contain number of sub requests.
+  * @return completed OSMModuleRequestResult object pointer.
+  *
+  * @exceptsafe This function does not throw exceptions.
+  */
+OSMModuleRequestResult ResultGenerator::Process(size_t sub_requests, vector<RoadPart>& road_parts)
+{
+	this->road_parts = road_parts;
+
+	return Process();
+}
+OSMModuleRequestResult ResultGenerator::Process()
 {
 	OSMModuleRequestResult res;
 
-	
-	size_t n = 0, total_way = 0;
-
-	for (int i = 0; i < req_num; i++)
-	{
-		total_way += road_info[i].size();
-	}
-
-	if (total_way == 0)
+	if (this->road_parts.empty())
 	{
 		res.request_status = NOTFOUND;
 	}
@@ -52,30 +49,91 @@ OSMModuleRequestResult ResultGenerator::Process(size_t req_num, const vector<vec
 		res.request_status = SUCCESS;
 	}
 
-	vector<RoadInfo> temp(total_way);
+	res.road_parts = this->road_parts;
 
-	for (int i = 0; i < req_num; i++)
+	return res;
+}
+
+/* append result */
+void ResultGenerator::Append(RoadPart& road_part)
+{
+	this->road_parts.push_back(road_part);
+};
+
+/* output with JSON format */
+void ResultGenerator::JsonParserOutput()
+{
+	wfstream fout;
+
+	fout.open(JSON_PATH, ios::out);
+
+	fout << L"[";
+
+	for (int i = 0; i < this->road_parts.size(); i++)
 	{
-		for (int j = 0; j < road_info[i].size(); j++)
+		fout << endl;
+
+		JSONValue* obj = this->road_parts[i].ToJSONObject();
+
+		fout << obj->Stringify(true);
+
+		delete obj;
+
+		if (i != this->road_parts.size() - 1)
+			fout << L",";
+	}
+
+	fout << endl << L"]";
+
+	fout.close();
+};
+
+/**
+* Search lane properties and add it on OSMModuleRequestResult.
+*
+* @param value contain OSMModuleRequestResult object pointer.
+* @return OSMModuleRequestResult object pointer .
+*
+* @exceptsafe This function does not throw exceptions.
+*/
+/*
+OSMModuleRequestResult& Output1(OSMModuleRequestResult& res)
+{
+	int k_id = 0;
+
+	vector<RoadPart>& roadpart = res.road_parts;
+
+	for (int j = 0; j < res.road_parts.size(); j++)
+	{
+		if (j > 0 && j < res.road_parts.size() - 1)
 		{
-			temp[n] = road_info[i][j];
-			n++;
+
+			for (size_t k = 0; k < roadpart[j].lane_sections[0].lanes.size(); k++)
+			{
+				for (size_t m = 0; m < roadpart[j - 1].lane_sections[0].lanes.size(); m++)
+				{
+					if (roadpart[j].lane_sections[0].lanes[k].driving_direction ==
+						roadpart[j - 1].lane_sections[0].lanes[m].driving_direction)
+					{
+						roadpart[j].lane_sections[0].lanes[m].previous_id = roadpart[j - 1].lane_sections[0].lanes[m].id;
+					}
+				}
+			}
+
+			for (size_t k = 0; k < roadpart[j].lane_sections[0].lanes.size(); k++)
+			{
+				for (size_t m = 0; m < roadpart[j + 1].lane_sections[0].lanes.size(); m++)
+				{
+					if (roadpart[j].lane_sections[0].lanes[k].driving_direction ==
+						roadpart[j + 1].lane_sections[0].lanes[m].driving_direction)
+					{
+						roadpart[j].lane_sections[0].lanes[m].next_id = roadpart[j + 1].lane_sections[0].lanes[m].id;
+					}
+				}
+			}
 		}
 	}
 
-	res.road_info = temp;
-
-	return PriorKnowledge_Provider.Output(res);
+	return res;
 }
-
-/*append result*/
-void ResultGenerator::Append() 
-{
-
-};
-
-/*output with JSON format*/
-OSMModuleRequestResult ResultGenerator::JsonParserOutput()
-{
-	return OSMModuleRequestResult();
-};
+*/

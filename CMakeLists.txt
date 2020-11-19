@@ -4,7 +4,7 @@ project(temptative_architecture)
 
 add_subdirectory(OSMModule)
 
-include_directories(OSMModule/Include)
+include_directories(OSMModule OSMModule/Include OSMModule/Include/Util OSMModule/Include/Data)
 
 add_executable(temptative_architecture main.cpp)
 

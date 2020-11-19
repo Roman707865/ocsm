@@ -1,4 +1,4 @@
-/*
+/* 
  * This file is header part of OSMM module.
  * Developed for the OpenStreet Data Management System.
  *
@@ -15,95 +15,52 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.
+ *
+ *
+ *======================================================================
+ * NOTE & MODIFIED : Merged RoadPart, RoadInfo and LocalRoadDescription
+ *======================================================================
+ *
+ * The main method to communicate with the module is:
+ *		OSMModuleRequestResult *RequestDataForPath (OSMModuleRequest request ) ;
+ *		This method performs a synchronous request and return a pointer to the output request structure.
+ *
+ * Functional System Level Requirements (SLR)
+ *		1: When being provided with a OSMModuleRequest, the OSMM shall return a OSMModuleRequestResult.
+ *		2: The OSMM shall give result for GPS traces located in any country of the world.
+ *		3: If a GPS trace does not perfectly matches a road trace recorded in the OSM database,
+ *			the requestresult shall contain information about the closest plausible road trace.
+ *		4: If no plausible road trace exist nearby the supplied GPS trace, the OSMM shall tag the result as NOTFOUND.
+ *		5: If a connection problem with the OSM servers occur, or if the result from the OSM server is corrupted,
+ *			the OSMM shall tag the result as FAILED.
+ *		6: The module shall be able to process requests with up to 72 geocoordinates.
+ *		7: The module shall be able to process requests with a single geocoordinate.
+ *
+ * General Architecture
+ *		The OSMModuleRequest is processed by the RequestLauncher.
+ *		This module will process n singlesubrequests with the OverpassAPI.
+ *		Each of the single subrequest result from the OverpassAPI will beprocessed by a JsonParser module
+ *			that will extract relevant information.
+ *		Each of these extractions willbe passed to a RequestAnalyzer that will build a consistent local road description.
+ *		The RequestAnalyzer will use the PriorKnowledgeProvider, to enrich and or fill gaps in the data.
+ *		Each of the local roaddescriptions will be supplied to the ResultGenerator,
+ *			that will build a consistent result along thegeodetic path supplied in the request.
+ *
+ *======================================================================
+ * NOTE & MODIFIED : Merged RoadPart, RoadInfo and LocalRoadDescription
+ *======================================================================
+ *
  */
 
 #ifndef OSMMODULE_H
 #define OSMMODULE_H
 
-#include <string>
-#include <vector>
+#include "OSMModuleRequest.h"
+#include "OSMModuleRequestResult.h"
 
-using namespace std;
+#define MAX_POINTS_COUNT	72
 
-struct LatLon
-{
-	double longitude;
-	double latitude;
-};
-
-struct VehiclePos
-{
-	LatLon latlon;
-	double heading;
-};
-
-struct OSMModuleRequest
-{
-	vector<VehiclePos> poses_buf;
-};
-
-enum RequestStatus
-{
-	SUCCESS,
-	FAILED,
-	NOTFOUND
-};
-
-
-
-struct Lane
-{
-	long long id;
-	long long next_id;
-	long long previous_id;
-	int speedlimit;
-	double width;
-	double lateraloffset;
-	int driving_direction;
-	int left_marking;
-	int right_marking;
-	int left_marking_color;
-	int right_marking_color;
-
-};
-
-struct LaneSection
-{
-	vector<Lane> lanes_buf;
-	vector<LatLon> chord_coordinates_buf;
-};
-
-struct RoadPart
-{
-	vector<LaneSection> lanesection_buf;
-	
-};
-
-struct RoadInfo
-{
-	string country;
-	wstring highway;
-	wstring lanes;
-	wstring lit;
-	wstring maxspeed;
-	wstring name;
-	wstring smoothness;
-	wstring surface;
-	wstring width;
-	LatLon center_pos;
-};
-
-
-struct OSMModuleRequestResult
-{
-	RequestStatus request_status;
-	vector<RoadPart> roadpart_buf;
-	vector<RoadInfo> road_info;
-	string country;
-};
-
- /* main method to communicate with the module */
+/* main method to communicate with the module */
 OSMModuleRequestResult RequestDataForPath(OSMModuleRequest request);
-
 
 #endif // OSMMODULE_H
