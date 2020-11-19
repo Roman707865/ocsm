@@ -44,9 +44,9 @@ vector<JSONValue*> RequestLauncher::Process(OSMModuleRequest request)
 		const LatLon& coord = pos.coord;
 
 		cout << "Proceeding vehicle pos : " << i 
-			<< " lat " << coord.lat 
-			<< " lon " << coord.lon
-			<< " heading " << pos.heading << endl;
+			<< " lat " << to_string(coord.lat)
+			<< " lon " << to_string(coord.lon)
+			<< " heading " << to_string(pos.heading) << endl;
 
 		cout << "Connecting..." << endl;
 
