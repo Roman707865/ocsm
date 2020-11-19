@@ -82,6 +82,9 @@ public:
 
 	/* output with JSON format */
 	void JsonParserOutput();
+    
+    template <class _Elem, class _Traits>
+    void JSONParserOutputTempl(basic_ostream< _Elem, _Traits>& stream);
 
 };
 

@@ -82,15 +82,22 @@ OSMModuleRequestResult RequestDataForPath(OSMModuleRequest request)
     catch (const RequestLauncher::Exception & e)
     {
         cout << "Custom Exception occurred : " << e.GetInternalException().what() << endl;
+        cout << "======== Failed ========" << endl;
         return OSMModuleRequestResult(FAILED); // SLR5
     }
 
     // Check again
-	if (request_launcher.GetRequestStatus() == FAILED)
-		return OSMModuleRequestResult(FAILED); // SLR5
+    if (request_launcher.GetRequestStatus() == FAILED)
+    {
+        cout << "======== Failed ========" << endl;
+        return OSMModuleRequestResult(FAILED); // SLR5
+    }
 
     if (json_results.empty())
+    {
+        cout << "======== Not found ========" << endl;
         return OSMModuleRequestResult(NOTFOUND); // SLR4
+    }
 
     // Analyze json results
 	vector<RoadPart> road_parts = RequestAnalyzer().Process(request, json_results);
@@ -105,7 +112,9 @@ OSMModuleRequestResult RequestDataForPath(OSMModuleRequest request)
 
     // Output into json file
 	result_generator.JsonParserOutput();
+    result_generator.JSONParserOutputTempl(wcout); // Output to screen
 
+    cout << "======== Success ========" << endl;
 	return result; // SLR1
 }
 

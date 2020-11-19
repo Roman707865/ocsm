@@ -36,12 +36,23 @@
  */
 vector<RoadPart> RequestAnalyzer::Process(const OSMModuleRequest& request, const vector<JSONValue*>& json_data)
 {
+	int total_ways = 0;
+
+	for (int i = 0; i < json_data.size(); i++)
+	{
+		if (json_data[i] != 0)
+			total_ways += json_data[i]->AsArray().size();
+	}
+
+	cout << "======== " << total_ways << " ways are analyzed ========" << endl;
+	
 	PriorKnowledgeProvider priorKnowledgeProvider;
 	int global_lane_id = 0;
 
 	vector<RoadPart> result;
 	result.reserve(json_data.size() * 4);
 
+	int way_index = 0;
 	for (int i = 0; i < json_data.size(); i++)
 	{
 		if (json_data[i] == 0)
@@ -51,6 +62,9 @@ vector<RoadPart> RequestAnalyzer::Process(const OSMModuleRequest& request, const
 
 		for (size_t j = 0; j < elements.size(); j++)
 		{
+			way_index++;
+			cout << "Way " << way_index << " : " << endl;
+
 			JSONObject way = elements[j]->AsObject();
 	
 			RoadPart road_part;
@@ -67,8 +81,9 @@ vector<RoadPart> RequestAnalyzer::Process(const OSMModuleRequest& request, const
 			if (tags[L"name"] != NULL)
 				road_part.name = tags[L"name"]->AsString();
 
-			cout << "Getting country name by Overpass API ..." << endl;
+			cout << "Getting country name by Overpass API..." << endl;
 			road_part.country = OverpassAPI::GetCountryName(coord); // SLR3
+			wcout << road_part.country << endl;
 
 			if (tags[L"highway"] != NULL)
 				road_part.highway = tags[L"highway"]->AsString();
@@ -179,9 +194,11 @@ vector<RoadPart> RequestAnalyzer::Process(const OSMModuleRequest& request, const
 			//====================================================
 			cout << "Getting nodes around way by Overpass API ..." << endl;
 			JSONValue* way_nodes_json = OverpassAPI::GetNodesData(chord_coords);
-			if (way_nodes_json != 0)
+			if (way_nodes_json != 0 && !way_nodes_json->AsArray().empty())
 			{
 				JSONArray node_elements = way_nodes_json->AsArray();
+				cout << node_elements.size() << " nodes around ways" << endl;
+
 				lane_section.way_nodes.resize(node_elements.size());
 
 				for (size_t k = 0; k < node_elements.size(); k++)
@@ -189,6 +206,11 @@ vector<RoadPart> RequestAnalyzer::Process(const OSMModuleRequest& request, const
 
 				delete way_nodes_json;
 			}
+			else
+			{
+				cout << "No node around way" << endl;
+			}
+
 
 			result.push_back(road_part);
 		}

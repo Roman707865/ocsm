@@ -36,7 +36,7 @@ vector<JSONValue*> RequestLauncher::Process(OSMModuleRequest request)
 	vector<JSONValue*> result; // NOTE: pointers must be released later
 	result.reserve(this->sub_requests);
 
-	cout << "======== " << this->sub_requests << " sub requests are created. ========" << endl;
+	cout << "======== " << this->sub_requests << " sub requests are processed ========" << endl;
 
 	for (size_t i = 0; i < this->sub_requests; ++i)
 	{
@@ -53,9 +53,14 @@ vector<JSONValue*> RequestLauncher::Process(OSMModuleRequest request)
 		/* connecting to server and getting result */
 		try
 		{
-			result.push_back(OverpassAPI::GetWayData(coord)); // Considering SLR3, SLR4, SLR5, SLR6
+			JSONValue* json = OverpassAPI::GetWayData(coord);
 
-			cout << "Succeeded." << endl;
+			if (json == 0 || json->AsArray().empty())
+				cout << "No ways" << endl;
+			else
+				cout << json->AsArray().size() << " ways" << endl;
+
+			result.push_back(json); // Considering SLR3, SLR4, SLR5, SLR6
 
 			this->request_status = SUCCESS;
 
@@ -63,7 +68,7 @@ vector<JSONValue*> RequestLauncher::Process(OSMModuleRequest request)
 		}
 		catch (const exception & e)
 		{
-			cout << "Connect failed." << endl;
+			cout << "Connect failed" << endl;
 
 			this->request_status = FAILED;
 

@@ -63,7 +63,7 @@ public:
 			"public_transport"
 		};
 
-		string filter = "(around:15";
+		string filter = "(around:500";
 		for (int i = 0; i < coords.size(); i++)
 			filter += "," + to_string(coords[i].coord.lat) + "," + to_string(coords[i].coord.lon);
 		filter += ");";

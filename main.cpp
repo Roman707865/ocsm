@@ -3,9 +3,9 @@
 #include <iostream>
 #include <fstream>
 
-#define USE_DEFAULT_VALUES		0
+#define USE_DEFAULT_VALUES		1
 #define DEFAULT_CSV_FILEPATH	"C:\\_\\fvrr_vmwork\\fvrr_vmwork_cmake\\swift-gnss.csv"
-#define DEFAULT_POINTCOUNT		2
+#define DEFAULT_POINTCOUNT		1
 
 /**
  * Read csv file content and save to text file .
@@ -17,7 +17,7 @@
  */
 vector<VehiclePos> read_csv(const string &csv_path, int point_count)
 {
-	cout << "reading data from csv file..." << endl;
+	cout << "Reading data from csv file..." << endl;
 
 	vector<VehiclePos> posebuffer;
 	posebuffer.reserve(point_count);
@@ -108,44 +108,6 @@ int main(int argc, char** argv)
 
 	/* send request to server and process */
 	OSMModuleRequestResult result = RequestDataForPath(request);
-
-	/* Test result output */
-	cout << "Looking at result" << endl;
-
-	if (result.request_status == RequestStatus::SUCCESS)
-	{
-		cout << "Success." << endl;
-
-		cout << "The result contain " << result.road_parts.size() << " RoadPart" << endl;
-
-		wcout << L"[";
-
-		for (size_t i = 0; i < result.road_parts.size(); i++)
-		{
-			wcout << endl;
-
-			JSONValue* obj = result.road_parts[i].ToJSONObject();
-
-			wcout << obj->Stringify(true);
-
-			delete obj;
-
-			if (i != result.road_parts.size() - 1)
-				wcout << L",";
-		}
-
-		wcout << endl << L"]";
-	}
-	else if (result.request_status == RequestStatus::NOTFOUND)
-	{
-		cout << "Not found." << endl;
-	}
-	else if (result.request_status == RequestStatus::FAILED)
-	{
-		cout << "Failed." << endl;
-	}
-
-	cout << endl << "End" << endl;
 
 	return 0;
 }

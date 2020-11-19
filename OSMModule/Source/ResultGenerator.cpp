@@ -18,6 +18,7 @@
 
 
 #include "ResultGenerator.h"
+#include <iostream>
 #include <fstream>
 
 #define JSON_PATH				"Results.json"
@@ -38,6 +39,8 @@ OSMModuleRequestResult ResultGenerator::Process(size_t sub_requests, vector<Road
 }
 OSMModuleRequestResult ResultGenerator::Process()
 {
+	cout << "======== Generating result... ========" << endl;
+
 	OSMModuleRequestResult res;
 
 	if (this->road_parts.empty())
@@ -67,26 +70,32 @@ void ResultGenerator::JsonParserOutput()
 
 	fout.open(JSON_PATH, ios::out);
 
-	fout << L"[";
+	JSONParserOutputTempl(fout);
+
+	fout.close();
+};
+
+template <class _Elem, class _Traits>
+void ResultGenerator::JSONParserOutputTempl(basic_ostream< _Elem, _Traits>& stream)
+{
+	stream << L"[";
 
 	for (int i = 0; i < this->road_parts.size(); i++)
 	{
-		fout << endl;
+		stream << endl;
 
 		JSONValue* obj = this->road_parts[i].ToJSONObject();
 
-		fout << obj->Stringify(true);
+		stream << obj->Stringify(true);
 
 		delete obj;
 
 		if (i != this->road_parts.size() - 1)
-			fout << L",";
+			stream << L",";
 	}
 
-	fout << endl << L"]";
-
-	fout.close();
-};
+	stream << endl << L"]" << endl;
+}
 
 /**
 * Search lane properties and add it on OSMModuleRequestResult.
