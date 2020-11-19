@@ -75,20 +75,28 @@ public:
 
 		//cout << endl << query << endl;
 
-		string data = GetResponse(query);
+		try
+		{
+			string data = GetResponse(query);
 
-		//cout << data;
+			//cout << data;
 
-		JSONValue* json_value = JSON::Parse(data.c_str());
+			JSONValue* json_value = JSON::Parse(data.c_str());
 
-		if (json_value == 0)
+			if (json_value == 0)
+				return 0;
+
+			JSONValue* result = JSON::Parse(json_value->Child(L"elements")->Stringify().c_str()); // NOTE: pointer must be released later
+
+			delete json_value;
+
+			return result;
+		}
+		catch (const exception & e)
+		{
+			cout << e.what() << endl;
 			return 0;
-
-		JSONValue* result = JSON::Parse(json_value->Child(L"elements")->Stringify().c_str()); // NOTE: pointer must be released later
-
-		delete json_value;
-
-		return result;
+		}
 	}
 
 	/**
