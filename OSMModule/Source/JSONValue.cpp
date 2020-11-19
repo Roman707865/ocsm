@@ -599,7 +599,7 @@ double JSONValue::AsNumber() const
 
 int JSONValue::AsIntegerFromString() const
 {
-	return _wtoi(AsString().c_str());
+	return (int)wcstol(AsString().c_str(), 0, 10);
 }
 
 /**
