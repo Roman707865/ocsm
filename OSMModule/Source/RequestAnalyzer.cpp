@@ -36,7 +36,7 @@
  */
 vector<RoadPart> RequestAnalyzer::Process(const OSMModuleRequest& request, const vector<JSONValue*>& json_data)
 {
-	int total_ways = 0;
+	size_t total_ways = 0;
 
 	for (int i = 0; i < json_data.size(); i++)
 	{
