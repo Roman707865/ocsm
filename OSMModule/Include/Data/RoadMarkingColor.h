@@ -1,7 +1,7 @@
 #ifndef ROADMARKINGCOLOR_H
 #define ROADMARKINGCOLOR_H
 
-#include <xstring>
+#include <string>
 
 enum RoadMarkingColor
 {

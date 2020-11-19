@@ -1,7 +1,7 @@
 #ifndef REQUESTSTATUS_H
 #define REQUESTSTATUS_H
 
-#include <xstring>
+#include <string>
 
 enum RequestStatus
 {
