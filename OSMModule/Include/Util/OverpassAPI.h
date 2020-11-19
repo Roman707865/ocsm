@@ -23,7 +23,7 @@ public:
 
 	static inline JSONValue* GetWayData(LatLon coord) // NOTE: pointer must be released later
 	{
-		string query = "[out:json];way(around:5," + to_string(coord.lat) + "," + to_string(coord.lon) + ");out tags geom;";
+		string query = "[out:json];way(around:15," + to_string(coord.lat) + "," + to_string(coord.lon) + ");out tags geom;";
 
 		string data = GetResponse(query);
 
@@ -63,7 +63,7 @@ public:
 			"public_transport"
 		};
 
-		string filter = "(around:500";
+		string filter = "(around:15";
 		for (int i = 0; i < coords.size(); i++)
 			filter += "," + to_string(coords[i].coord.lat) + "," + to_string(coords[i].coord.lon);
 		filter += ");";

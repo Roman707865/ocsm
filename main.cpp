@@ -3,9 +3,9 @@
 #include <iostream>
 #include <fstream>
 
-#define USE_DEFAULT_VALUES		1
+#define USE_DEFAULT_VALUES		0
 #define DEFAULT_CSV_FILEPATH	"C:\\_\\fvrr_vmwork\\fvrr_vmwork_cmake\\swift-gnss.csv"
-#define DEFAULT_POINTCOUNT		1
+#define DEFAULT_POINTCOUNT		2
 
 /**
  * Read csv file content and save to text file .
