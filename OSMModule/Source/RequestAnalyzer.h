@@ -48,8 +48,6 @@
   */
 class RequestAnalyzer
 {
-private:
-
 public:
 	/* member function for output */
 	vector<RoadPart> Process(const OSMModuleRequest& request, const vector<JSONValue*>& json_data); // SLR1, SLR2

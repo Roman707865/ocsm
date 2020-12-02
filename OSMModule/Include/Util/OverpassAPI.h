@@ -23,8 +23,9 @@ public:
 
 	static inline JSONValue* GetWayData(LatLon coord) // NOTE: pointer must be released later
 	{
-		string query = "[out:json];way(around:15," + to_string(coord.lat) + "," + to_string(coord.lon) + ");out tags geom;";
-
+		
+		string query = "[out:json];way(around:15," + to_string(coord.lat) + "," + to_string(coord.lon) + ")[highway~\"" + "." + "\"][highway!~\"" + "path|track|cycleway|footway\"""];out tags geom;";
+		
 		string data = GetResponse(query);
 
 		//cout << data;
